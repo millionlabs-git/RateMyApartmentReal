@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import nycVideoPath from "@assets/5868771-uhd_3840_2160_30fps_(1)_1767094510398.mp4";
+import nycVideoPath from "@assets/nyc-background.mp4";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
