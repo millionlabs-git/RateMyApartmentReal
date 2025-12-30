@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Search, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import nycVideoPath from "@assets/nyc-background.mp4";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -145,7 +144,7 @@ export default function Home() {
             poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
             data-testid="video-background"
           >
-            <source src={nycVideoPath} type="video/mp4" />
+            <source src="/nyc-background.mp4" type="video/mp4" />
           </video>
         </div>
 
