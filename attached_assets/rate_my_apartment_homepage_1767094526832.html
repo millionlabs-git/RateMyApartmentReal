@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate My Apartment — NYC Building Reviews</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #FDFAF6;
+            --ink: #1C1917;
+            --ink-light: #57534E;
+            --ink-muted: #A8A29E;
+            --accent: #D97706;
+            --white: #FFFFFF;
+            --border: #E7E5E4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ========== Navbar ========== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 3rem;
+            box-shadow: 0 1px 0 var(--border);
+        }
+
+        .logo {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.375rem;
+            color: var(--white);
+            letter-spacing: -0.01em;
+            transition: color 0.4s;
+        }
+
+        nav.scrolled .logo {
+            color: var(--ink);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        nav.scrolled .nav-links a {
+            color: var(--ink-light);
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        nav.scrolled .nav-links a:hover {
+            color: var(--ink);
+        }
+
+        .nav-cta {
+            background: var(--white) !important;
+            color: var(--ink) !important;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            transition: all 0.2s !important;
+        }
+
+        nav.scrolled .nav-cta {
+            background: var(--ink) !important;
+            color: var(--white) !important;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* ========== Hero ========== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .hero-video {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+        }
+
+        .hero-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80') center/cover no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.35) 0%,
+                rgba(0, 0, 0, 0.45) 50%,
+                rgba(0, 0, 0, 0.6) 100%
+            );
+        }
+
+        .hero-content {
+            max-width: 700px;
+            opacity: 0;
+            animation: fadeIn 1s 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .hero-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 400;
+            color: var(--white);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-mission {
+            font-size: 1.125rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        /* ========== Liquid Glass Search ========== */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            pointer-events: none;
+        }
+
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--white);
+            background: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .search-btn {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1.25rem 2rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .search-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-hint {
+            margin-top: 1.25rem;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-hint a {
+            color: var(--white);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: rgba(255,255,255,0.4);
+            transition: text-decoration-color 0.2s;
+        }
+
+        .search-hint a:hover {
+            text-decoration-color: var(--white);
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            animation: fadeIn 1s 1s forwards;
+            opacity: 0;
+        }
+
+        .scroll-indicator span {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+            animation: scrollPulse 2s infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ========== How It Works ========== */
+        .how-section {
+            padding: 6rem 2rem;
+            background: var(--white);
+        }
+
+        .how-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 400;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: var(--bg);
+            border-radius: 50%;
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+        }
+
+        .step h3 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.375rem;
+            font-weight: 400;
+            color: var(--ink);
+            margin-bottom: 0.75rem;
+        }
+
+        .step p {
+            font-size: 0.9375rem;
+            color: var(--ink-light);
+            line-height: 1.65;
+        }
+
+        /* ========== Footer ========== */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        .footer-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.125rem;
+            color: var(--ink);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            font-size: 0.8125rem;
+            color: var(--ink-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--ink);
+        }
+
+        .footer-copy {
+            font-size: 0.8125rem;
+            color: var(--ink-muted);
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links a:not(.nav-cta) {
+                display: none;
+            }
+
+            .hero {
+                min-height: 600px;
+                padding: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .hero-mission {
+                font-size: 1rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+                border-radius: 16px;
+            }
+
+            .search-btn {
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.15);
+                padding: 1rem;
+            }
+
+            .scroll-indicator {
+                display: none;
+            }
+
+            .how-section {
+                padding: 4rem 1.5rem;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            footer {
+                padding: 2rem 1.5rem;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav id="nav">
+        <div class="logo">Rate My Apartment</div>
+        <div class="nav-links">
+            <a href="#how">How It Works</a>
+            <a href="/add">Add Building</a>
+            <a href="/signin" class="nav-cta">Sign In</a>
+        </div>
+    </nav>
+
+    <!-- Hero with NYC Video Background -->
+    <section class="hero">
+        <div class="hero-video">
+            <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80">
+                <source src="https://cdn.pixabay.com/video/2020/05/25/40130-424930032_large.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">Find your next apartment</h1>
+            <p class="hero-mission">Honest, anonymous reviews from real NYC renters.</p>
+            
+            <div class="search-container">
+                <form class="search-box" action="/search" method="GET">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        name="q" 
+                        placeholder="Search by address or neighborhood..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+                <p class="search-hint">Can't find your building? <a href="/add">Add it here</a></p>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <span></span>
+            Scroll
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-section" id="how">
+        <div class="how-inner">
+            <header class="section-header">
+                <p class="section-label">How It Works</p>
+                <h2 class="section-title">Three simple steps</h2>
+            </header>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Search</h3>
+                    <p>Enter any NYC address, building name, or neighborhood to find reviews from real residents.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Read</h3>
+                    <p>Browse floor-by-floor insights on noise, maintenance, pests, management, and more.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Review</h3>
+                    <p>Share your experience anonymously and help the next renter make a better decision.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-logo">Rate My Apartment</div>
+            <nav class="footer-links">
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+            </nav>
+            <p class="footer-copy">© 2025 Rate My Apartment</p>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
