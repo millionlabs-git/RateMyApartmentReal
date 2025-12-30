@@ -22,18 +22,31 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Synchronize videos when theme changes
+  // Synchronize and optimize video playback
   useEffect(() => {
     const dayVideo = dayVideoRef.current;
     const nightVideo = nightVideoRef.current;
     
-    if (dayVideo && nightVideo) {
-      // Sync the hidden video to the visible one's time
-      if (isDark) {
-        nightVideo.currentTime = dayVideo.currentTime;
+    if (!dayVideo || !nightVideo) return;
+    
+    const syncAndSwitch = (
+      activeVideo: HTMLVideoElement,
+      inactiveVideo: HTMLVideoElement
+    ) => {
+      const time = inactiveVideo.currentTime || 0;
+      if ('fastSeek' in activeVideo && typeof (activeVideo as any).fastSeek === 'function') {
+        (activeVideo as any).fastSeek(time);
       } else {
-        dayVideo.currentTime = nightVideo.currentTime;
+        activeVideo.currentTime = time;
       }
+      activeVideo.play().catch(() => {});
+      inactiveVideo.pause();
+    };
+    
+    if (isDark) {
+      syncAndSwitch(nightVideo, dayVideo);
+    } else {
+      syncAndSwitch(dayVideo, nightVideo);
     }
   }, [isDark]);
 
@@ -161,7 +174,8 @@ export default function Home() {
           muted
           loop
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+          preload="auto"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
             isDark ? "opacity-0" : "opacity-100"
           }`}
           poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
@@ -177,7 +191,8 @@ export default function Home() {
           muted
           loop
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+          preload="auto"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
             isDark ? "opacity-100" : "opacity-0"
           }`}
           poster="/nyc-night.jpg"
