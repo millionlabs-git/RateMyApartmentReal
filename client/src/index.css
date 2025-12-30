@@ -26,8 +26,8 @@
   --popover: 30 10% 91%;
   --popover-foreground: 20 6% 12%;
   --popover-border: 30 8% 87%;
-  --primary: 28 90% 48%;
-  --primary-foreground: 30 10% 98%;
+  --primary: 32 95% 44%;
+  --primary-foreground: 40 20% 98%;
   --secondary: 30 8% 86%;
   --secondary-foreground: 20 6% 12%;
   --muted: 30 6% 88%;
@@ -49,7 +49,8 @@
   --ink: 28 9% 9%;
   --ink-light: 24 6% 33%;
   --ink-muted: 25 5% 65%;
-  --amber: 28 90% 48%;
+  --amber: 32 95% 44%;
+  --honey: 38 92% 50%;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(30 10% 20% / 0.03);
   --shadow-xs: 0px 2px 0px 0px hsl(30 10% 20% / 0.05);

@@ -95,7 +95,7 @@ export default function Home() {
               <nav className="flex flex-col gap-6 mt-8">
                 <a
                   href="/search"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#D97706] transition-colors"
+                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
                   data-testid="mobile-link-search"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -103,7 +103,7 @@ export default function Home() {
                 </a>
                 <a
                   href="/add"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#D97706] transition-colors"
+                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
                   data-testid="mobile-link-add-building"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -111,7 +111,7 @@ export default function Home() {
                 </a>
                 <a
                   href="/login"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#D97706] transition-colors"
+                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
                   data-testid="mobile-link-login"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -217,7 +217,7 @@ export default function Home() {
       <section className="py-16 md:py-24 px-4 md:px-8 bg-white" data-testid="section-how-it-works">
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12 md:mb-16">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#D97706] mb-3">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#B45309] mb-3">
               How It Works
             </p>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] font-normal text-[#1C1917] tracking-tight">
