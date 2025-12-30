@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 
-// Import videos as assets so they're properly bundled
-import nycDayVideo from "@assets/upscale.mp4";
-import nycNightVideo from "@assets/nyc-background.mp4";
+// Import logo as asset
 import logoImage from "@assets/rate_my_apartment_horizontal_full_(1)_1767106423750.png";
+
+// Videos are served from public folder for better production compatibility
+const nycDayVideo = "/nyc-day.mp4";
+const nycNightVideo = "/nyc-background.mp4";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
