@@ -96,16 +96,18 @@ export default function Home() {
       >
         <a
           href="/"
-          className="transition-all duration-400"
+          className="transition-all duration-400 overflow-hidden"
           data-testid="link-logo"
         >
-          <img 
-            src={logoImage} 
-            alt="Rate My Apartment" 
-            className={`h-24 md:h-[120px] w-auto transition-all duration-400 ${
-              scrolled ? "" : "brightness-0 invert"
-            }`}
-          />
+          <div className="h-10 md:h-12 overflow-hidden flex items-center">
+            <img 
+              src={logoImage} 
+              alt="Rate My Apartment" 
+              className={`h-24 md:h-28 w-auto -my-6 transition-all duration-400 ${
+                scrolled ? "" : "brightness-0 invert"
+              }`}
+            />
+          </div>
         </a>
 
         <div className="flex items-center gap-6 md:gap-10">
