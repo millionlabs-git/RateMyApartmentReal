@@ -1,4 +1,5 @@
-# Workflow Status Template
+# Workflow Status - RateMyApartment
+# BMad Method - Brownfield Track
 
 # This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
 # Implementation phase is tracked separately in sprint-status.yaml
@@ -15,10 +16,104 @@
 #   - {file-path}: File created/found (e.g., "docs/product-brief.md")
 #   - skipped: Optional/conditional workflow that was skipped
 
-generated: ""
+generated: "2025-12-30"
 project: "RateMyApartment"
-project_type: ""
-selected_track: ""
-field_type: ""
-workflow_path: ""
-workflow_status: ""
+project_type: "web-application"
+selected_track: "method"
+field_type: "brownfield"
+workflow_path: "method-brownfield.yaml"
+
+workflow_status:
+  # PREREQUISITE - Documentation (Brownfield requires understanding existing codebase)
+  prerequisite:
+    name: "Documentation"
+    note: "Required for brownfield - understand existing codebase before planning"
+    workflows:
+      - id: "document-project"
+        status: "docs/index.md"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:document-project"
+        purpose: "Analyze and document existing React/Express codebase"
+        completed: "2025-12-30"
+        outputs:
+          - "docs/index.md"
+          - "docs/project-overview.md"
+          - "docs/architecture.md"
+          - "docs/source-tree-analysis.md"
+          - "docs/component-inventory.md"
+          - "docs/data-models.md"
+          - "docs/development-guide.md"
+
+  # PHASE 0 - Discovery (Optional - User selected: none)
+  phase_0:
+    name: "Discovery"
+    optional: true
+    workflows:
+      - id: "brainstorm"
+        status: "skipped"
+      - id: "research"
+        status: "skipped"
+      - id: "product-brief"
+        status: "skipped"
+
+  # PHASE 1 - Planning
+  phase_1:
+    name: "Planning"
+    workflows:
+      - id: "prd"
+        status: "NYC_Apartment_Review_Platform_PRD.docx"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:create-prd"
+        note: "COMPLETED - Existing PRD found"
+
+      - id: "create-ux-design"
+        status: "conditional"
+        condition: "if_has_ui"
+        agent: "ux-designer"
+        command: "/bmad:bmm:workflows:create-ux-design"
+        note: "Recommended - web app has UI components"
+
+  # PHASE 2 - Solutioning
+  phase_2:
+    name: "Solutioning"
+    workflows:
+      - id: "create-architecture"
+        status: "recommended"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:create-architecture"
+        note: "HIGHLY RECOMMENDED - Creates focused solution design from brownfield context"
+
+      - id: "create-epics-and-stories"
+        status: "required"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:create-epics-and-stories"
+        note: "Break down PRD into implementable stories"
+
+      - id: "test-design"
+        status: "recommended"
+        agent: "tea"
+        command: "/bmad:bmm:workflows:testarch-test-design"
+        note: "System-level testability review"
+
+      - id: "implementation-readiness"
+        status: "required"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:check-implementation-readiness"
+        note: "Gate check before implementation"
+
+  # PHASE 3 - Implementation
+  phase_3:
+    name: "Implementation"
+    workflows:
+      - id: "sprint-planning"
+        status: "required"
+        agent: "sm"
+        command: "/bmad:bmm:workflows:sprint-planning"
+        note: "Creates sprint plan with prioritized stories"
+
+# Next action determined by first incomplete required workflow
+next_action:
+  workflow: "create-architecture"
+  agent: "architect"
+  command: "/bmad:bmm:workflows:create-architecture"
+  reason: "Document existing architecture decisions and create solution design for pending features"
