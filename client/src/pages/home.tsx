@@ -8,6 +8,7 @@ import { useTheme } from "@/components/theme-provider";
 // Import videos as assets so they're properly bundled
 import nycDayVideo from "@assets/upscale.mp4";
 import nycNightVideo from "@assets/nyc-background.mp4";
+import logoImage from "@assets/rate_my_apartment_horizontal_full_(1)_1767106423750.png";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -95,12 +96,16 @@ export default function Home() {
       >
         <a
           href="/"
-          className={`font-serif text-xl md:text-[1.375rem] tracking-tight transition-colors duration-400 ${
-            scrolled ? "text-[#1C1917] dark:text-white" : "text-white"
-          }`}
+          className="transition-all duration-400"
           data-testid="link-logo"
         >
-          Rate My Apartment
+          <img 
+            src={logoImage} 
+            alt="Rate My Apartment" 
+            className={`h-8 md:h-10 w-auto transition-all duration-400 ${
+              scrolled ? "" : "brightness-0 invert"
+            }`}
+          />
         </a>
 
         <div className="flex items-center gap-6 md:gap-10">
