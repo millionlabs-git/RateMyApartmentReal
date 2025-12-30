@@ -240,15 +240,15 @@ export default function Home() {
         >
           {/* Animated NYC Skyline */}
           <div className="relative mb-8">
-            <div className="flex items-end gap-1">
-              {[40, 65, 55, 80, 45, 70, 50, 85, 60, 75].map((height, i) => (
+            <div className="flex items-end gap-1 h-24">
+              {[40, 65, 55, 80, 45, 70, 50, 85, 60, 75].map((baseHeight, i) => (
                 <div
                   key={i}
-                  className="w-3 md:w-4 bg-gradient-to-t from-[#B45309] to-[#F59E0B] rounded-t-sm animate-pulse"
+                  className="w-3 md:w-4 bg-gradient-to-t from-[#B45309] to-[#F59E0B] rounded-t-sm"
                   style={{
-                    height: `${height}px`,
-                    animationDelay: `${i * 100}ms`,
-                    animationDuration: '1.5s'
+                    animation: `skylineBounce 1.2s ease-in-out infinite`,
+                    animationDelay: `${i * 80}ms`,
+                    height: `${baseHeight}px`
                   }}
                 />
               ))}
@@ -262,13 +262,11 @@ export default function Home() {
             <h2 className="font-serif text-2xl md:text-3xl text-white mb-3">
               Rate My Apartment
             </h2>
-            <div className="flex items-center gap-2 text-white/60 text-sm">
+            <div className="flex items-center justify-center gap-1 text-white/60 text-sm">
               <span>Loading NYC</span>
-              <span className="flex gap-1">
-                <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
-                <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
-                <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
-              </span>
+              <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+              <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+              <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
             </div>
           </div>
         </div>
