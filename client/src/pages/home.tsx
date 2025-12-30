@@ -415,11 +415,11 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-8 md:py-12 px-4 md:px-8 border-t border-[#E7E5E4] dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-[1000px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-          <div className="h-10 overflow-hidden flex items-center" data-testid="footer-logo">
+          <div className="h-14 overflow-hidden flex items-center" data-testid="footer-logo">
             <img 
               src={logoImage} 
               alt="Rate My Apartment" 
-              className="h-[90px] w-auto -my-5"
+              className="h-[135px] w-auto -my-7"
             />
           </div>
 
