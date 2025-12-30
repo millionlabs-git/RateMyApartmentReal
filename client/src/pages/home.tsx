@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDark } = useTheme();
+  
+  const dayVideoRef = useRef<HTMLVideoElement>(null);
+  const nightVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +21,21 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Synchronize videos when theme changes
+  useEffect(() => {
+    const dayVideo = dayVideoRef.current;
+    const nightVideo = nightVideoRef.current;
+    
+    if (dayVideo && nightVideo) {
+      // Sync the hidden video to the visible one's time
+      if (isDark) {
+        nightVideo.currentTime = dayVideo.currentTime;
+      } else {
+        dayVideo.currentTime = nightVideo.currentTime;
+      }
+    }
+  }, [isDark]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,15 +154,34 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative h-screen min-h-[700px] flex flex-col items-center justify-center text-center px-4 md:px-8 overflow-hidden">
-        {/* Video Background */}
+        {/* Day Video Background */}
         <video
+          ref={dayVideoRef}
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          poster={isDark ? "/nyc-night.jpg" : "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"}
-          data-testid="video-background"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+            isDark ? "opacity-0" : "opacity-100"
+          }`}
+          poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
+          data-testid="video-background-day"
+        >
+          <source src="/nyc-day.mp4" type="video/mp4" />
+        </video>
+
+        {/* Night Video Background */}
+        <video
+          ref={nightVideoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+            isDark ? "opacity-100" : "opacity-0"
+          }`}
+          poster="/nyc-night.jpg"
+          data-testid="video-background-night"
         >
           <source src="/nyc-background.mp4" type="video/mp4" />
         </video>
