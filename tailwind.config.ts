@@ -83,8 +83,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
+        sans: ["'DM Sans'", "var(--font-sans)"],
+        serif: ["'Instrument Serif'", "var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },
       keyframes: {
@@ -96,10 +96,26 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeIn: {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        fadeInDelayed: {
+          "0%": { opacity: "0" },
+          "50%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        scrollPulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.3" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        fadeIn: "fadeIn 1s 0.3s forwards",
+        fadeInDelayed: "fadeInDelayed 2s forwards",
+        pulse: "scrollPulse 2s infinite",
       },
     },
   },
