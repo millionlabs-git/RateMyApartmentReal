@@ -106,7 +106,7 @@ export default function Home() {
               src={logoImage} 
               alt="Rate My Apartment" 
               className={`h-[115px] md:h-[134px] w-auto -my-7 transition-all duration-400 ${
-                scrolled ? "" : "brightness-0 invert"
+                scrolled && !isDark ? "" : "brightness-0 invert"
               }`}
             />
           </div>
