@@ -99,11 +99,11 @@ export default function Home() {
           className="transition-all duration-400 overflow-hidden"
           data-testid="link-logo"
         >
-          <div className="h-10 md:h-12 overflow-hidden flex items-center">
+          <div className="h-[60px] md:h-[72px] overflow-hidden flex items-center">
             <img 
               src={logoImage} 
               alt="Rate My Apartment" 
-              className={`h-24 md:h-28 w-auto -my-6 transition-all duration-400 ${
+              className={`h-36 md:h-[168px] w-auto -my-9 transition-all duration-400 ${
                 scrolled ? "" : "brightness-0 invert"
               }`}
             />
