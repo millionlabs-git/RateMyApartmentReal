@@ -102,7 +102,7 @@ export default function Home() {
           <img 
             src={logoImage} 
             alt="Rate My Apartment" 
-            className={`h-8 md:h-10 w-auto transition-all duration-400 ${
+            className={`h-24 md:h-[120px] w-auto transition-all duration-400 ${
               scrolled ? "" : "brightness-0 invert"
             }`}
           />
