@@ -9,6 +9,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const { isDark } = useTheme();
   
   const dayVideoRef = useRef<HTMLVideoElement>(null);
@@ -21,6 +22,28 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Handle video loaded state
+  useEffect(() => {
+    const activeVideo = isDark ? nightVideoRef.current : dayVideoRef.current;
+    
+    if (!activeVideo) return;
+    
+    const handleCanPlay = () => {
+      setVideoLoaded(true);
+    };
+    
+    // Check if already loaded
+    if (activeVideo.readyState >= 3) {
+      setVideoLoaded(true);
+    } else {
+      activeVideo.addEventListener('canplaythrough', handleCanPlay);
+    }
+    
+    return () => {
+      activeVideo.removeEventListener('canplaythrough', handleCanPlay);
+    };
+  }, [isDark]);
 
   // Synchronize and optimize video playback
   useEffect(() => {
@@ -208,13 +231,59 @@ export default function Home() {
             : "bg-gradient-to-b from-black/35 via-black/45 to-black/60"
         }`} />
 
+        {/* Loading Screen */}
+        <div 
+          className={`absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#1C1917] transition-opacity duration-700 ${
+            videoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+          data-testid="loading-screen"
+        >
+          {/* Animated NYC Skyline */}
+          <div className="relative mb-8">
+            <div className="flex items-end gap-1">
+              {[40, 65, 55, 80, 45, 70, 50, 85, 60, 75].map((height, i) => (
+                <div
+                  key={i}
+                  className="w-3 md:w-4 bg-gradient-to-t from-[#B45309] to-[#F59E0B] rounded-t-sm animate-pulse"
+                  style={{
+                    height: `${height}px`,
+                    animationDelay: `${i * 100}ms`,
+                    animationDuration: '1.5s'
+                  }}
+                />
+              ))}
+            </div>
+            {/* Ground line */}
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]" />
+          </div>
+          
+          {/* Loading Text */}
+          <div className="text-center">
+            <h2 className="font-serif text-2xl md:text-3xl text-white mb-3">
+              Rate My Apartment
+            </h2>
+            <div className="flex items-center gap-2 text-white/60 text-sm">
+              <span>Loading NYC</span>
+              <span className="flex gap-1">
+                <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Day/Night Toggle */}
-        <div className="absolute top-24 right-6 md:right-12 z-20">
+        <div className={`absolute top-24 right-6 md:right-12 z-20 transition-opacity duration-500 ${
+          videoLoaded ? "opacity-100" : "opacity-0"
+        }`}>
           <ThemeToggle variant="hero" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-[700px] animate-fadeIn">
+        <div className={`relative z-10 max-w-[700px] transition-opacity duration-700 ${
+          videoLoaded ? "animate-fadeIn" : "opacity-0"
+        }`}>
           <h1
             className="font-serif text-4xl md:text-5xl lg:text-[4rem] font-normal text-white leading-[1.1] tracking-tight mb-5"
             data-testid="text-hero-title"
@@ -271,7 +340,9 @@ export default function Home() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 text-xs tracking-widest uppercase animate-fadeInDelayed">
+        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 text-xs tracking-widest uppercase transition-opacity duration-700 delay-500 ${
+          videoLoaded ? "opacity-100" : "opacity-0"
+        }`}>
           <span>Scroll</span>
           <span className="w-px h-10 bg-gradient-to-b from-white/50 to-transparent animate-pulse" />
         </div>
