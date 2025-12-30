@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Search, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useTheme } from "@/components/theme-provider";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +30,7 @@ export default function Home() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-4 md:py-6 flex justify-between items-center transition-all duration-400 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-xl shadow-sm py-3 md:py-4"
+            ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-sm py-3 md:py-4"
             : ""
         }`}
         data-testid="navbar"
@@ -35,7 +38,7 @@ export default function Home() {
         <a
           href="/"
           className={`font-serif text-xl md:text-[1.375rem] tracking-tight transition-colors duration-400 ${
-            scrolled ? "text-[#1C1917]" : "text-white"
+            scrolled ? "text-[#1C1917] dark:text-white" : "text-white"
           }`}
           data-testid="link-logo"
         >
@@ -47,7 +50,7 @@ export default function Home() {
             href="/search"
             className={`hidden md:block text-sm font-medium transition-colors ${
               scrolled
-                ? "text-[#57534E] hover:text-[#1C1917]"
+                ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
                 : "text-white/85 hover:text-white"
             }`}
             data-testid="link-search"
@@ -58,7 +61,7 @@ export default function Home() {
             href="/add"
             className={`hidden md:block text-sm font-medium transition-colors ${
               scrolled
-                ? "text-[#57534E] hover:text-[#1C1917]"
+                ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
                 : "text-white/85 hover:text-white"
             }`}
             data-testid="link-add-building"
@@ -140,14 +143,23 @@ export default function Home() {
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
+          poster={isDark ? "/nyc-night.jpg" : "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"}
           data-testid="video-background"
         >
           <source src="/nyc-background.mp4" type="video/mp4" />
         </video>
 
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/60" />
+        {/* Dark Overlay - deeper for night mode */}
+        <div className={`absolute inset-0 transition-colors duration-500 ${
+          isDark
+            ? "bg-gradient-to-b from-black/50 via-black/60 to-black/75"
+            : "bg-gradient-to-b from-black/35 via-black/45 to-black/60"
+        }`} />
+
+        {/* Day/Night Toggle */}
+        <div className="absolute top-24 right-6 md:right-12 z-20">
+          <ThemeToggle variant="hero" />
+        </div>
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-[700px] animate-fadeIn">
@@ -214,13 +226,13 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-white" data-testid="section-how-it-works">
+      <section className="py-16 md:py-24 px-4 md:px-8 bg-white dark:bg-gray-900 transition-colors duration-500" data-testid="section-how-it-works">
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12 md:mb-16">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#B45309] mb-3">
               How It Works
             </p>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] font-normal text-[#1C1917] tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] font-normal text-[#1C1917] dark:text-white tracking-tight transition-colors">
               Real Reviews, Real Insights
             </h2>
           </div>
@@ -228,39 +240,39 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {/* Step 1 */}
             <div className="text-center px-4" data-testid="step-1">
-              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] rounded-full font-serif text-2xl text-[#1C1917] mb-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] dark:bg-gray-800 rounded-full font-serif text-2xl text-[#1C1917] dark:text-white mb-6 transition-colors">
                 1
               </div>
-              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] mb-3">
+              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] dark:text-white mb-3 transition-colors">
                 Search Buildings
               </h3>
-              <p className="text-[0.9375rem] text-[#57534E] leading-relaxed">
+              <p className="text-[0.9375rem] text-[#57534E] dark:text-gray-400 leading-relaxed transition-colors">
                 Enter any NYC address or building name to find reviews from real tenants.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="text-center px-4" data-testid="step-2">
-              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] rounded-full font-serif text-2xl text-[#1C1917] mb-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] dark:bg-gray-800 rounded-full font-serif text-2xl text-[#1C1917] dark:text-white mb-6 transition-colors">
                 2
               </div>
-              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] mb-3">
+              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] dark:text-white mb-3 transition-colors">
                 Read Reviews
               </h3>
-              <p className="text-[0.9375rem] text-[#57534E] leading-relaxed">
+              <p className="text-[0.9375rem] text-[#57534E] dark:text-gray-400 leading-relaxed transition-colors">
                 Get honest insights on noise, cleanliness, maintenance, safety, and more.
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="text-center px-4" data-testid="step-3">
-              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] rounded-full font-serif text-2xl text-[#1C1917] mb-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FDFAF6] dark:bg-gray-800 rounded-full font-serif text-2xl text-[#1C1917] dark:text-white mb-6 transition-colors">
                 3
               </div>
-              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] mb-3">
+              <h3 className="font-serif text-xl md:text-[1.375rem] font-normal text-[#1C1917] dark:text-white mb-3 transition-colors">
                 Share Your Experience
               </h3>
-              <p className="text-[0.9375rem] text-[#57534E] leading-relaxed">
+              <p className="text-[0.9375rem] text-[#57534E] dark:text-gray-400 leading-relaxed transition-colors">
                 Help fellow renters by anonymously reviewing your building.
               </p>
             </div>
@@ -269,37 +281,37 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 md:py-12 px-4 md:px-8 border-t border-[#E7E5E4] bg-white">
+      <footer className="py-8 md:py-12 px-4 md:px-8 border-t border-[#E7E5E4] dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-[1000px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-          <span className="font-serif text-lg text-[#1C1917]" data-testid="text-footer-logo">
+          <span className="font-serif text-lg text-[#1C1917] dark:text-white transition-colors" data-testid="text-footer-logo">
             Rate My Apartment
           </span>
 
           <div className="flex items-center gap-6 md:gap-8">
             <a
               href="/about"
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] transition-colors"
+              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
               data-testid="link-about"
             >
               About
             </a>
             <a
               href="/contact"
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] transition-colors"
+              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
               data-testid="link-contact"
             >
               Contact
             </a>
             <a
               href="/privacy"
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] transition-colors"
+              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
               data-testid="link-privacy"
             >
               Privacy
             </a>
             <a
               href="/terms"
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] transition-colors"
+              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
               data-testid="link-terms"
             >
               Terms
