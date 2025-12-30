@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3]
+stepsCompleted: [1, 2, 3, 4]
 inputDocuments:
   - "NYC_Apartment_Review_Platform_PRD.docx"
   - "design_guidelines.md"
@@ -128,4 +128,103 @@ This is a brownfield project. The technology stack has been established through 
 - Path aliases (@/, @shared/, @assets)
 
 **Note:** No initialization needed - focus on extending existing architecture for pending features.
+
+## Core Architectural Decisions
+
+### Decision Summary
+
+| Category | Decision | Rationale |
+|----------|----------|-----------|
+| **Authentication** | Cookie-based sessions + local auth | Single-domain app, matches PRD, simpler |
+| **Session Store** | PostgreSQL via connect-pg-simple | Reuses existing database |
+| **Pagination** | Offset-based (?page=&limit=) | Simple, sufficient for dataset size |
+| **Error Format** | Simple { "message": "..." } | Consistent, easy to handle |
+| **Search** | PostgreSQL ILIKE queries | No extra infrastructure, good for MVP |
+| **Geocoding** | Google Maps API (synchronous) | Best NYC accuracy, immediate validation |
+| **Email** | Postmark | Excellent deliverability |
+| **File Storage** | Replit Object Storage | Native integration |
+| **File Limits** | 5MB max, JPEG/PNG/WebP | Balanced size/quality |
+| **File Naming** | reviews/{reviewId}/{uuid}.{ext} | Organized by review |
+
+### Data Architecture
+
+**Database:** PostgreSQL with Drizzle ORM (established)
+
+**Schema Extensions Required:**
+- Extend `users` table (add email, role, status, created_at)
+- Add `buildings` table with geocode fields
+- Add `reviews` table with multi-dimensional ratings
+- Add `review_photos` table for image references
+- Add `duplicate_queue` table for moderation
+
+**Session Storage:**
+- `connect-pg-simple` for Express session store
+- Sessions table in PostgreSQL
+
+### Authentication & Security
+
+**Strategy:** Passport.js with Local Strategy
+- Email/password authentication
+- Bcrypt for password hashing
+- express-session with PostgreSQL store
+- httpOnly cookies for session ID
+
+**Authorization:**
+- Role-based: `user` | `admin`
+- Middleware checks for protected routes
+- Admin routes under `/api/admin/*`
+
+### API & Communication Patterns
+
+**Design:** RESTful API at `/api/*`
+
+**Endpoints Pattern:**
+- `GET /api/buildings` - List with pagination
+- `GET /api/buildings/:id` - Single building with reviews
+- `POST /api/buildings` - Create (authenticated)
+- `POST /api/reviews` - Submit review (authenticated)
+- `GET /api/admin/moderation` - Moderation queue (admin)
+
+**Pagination:**
+```
+GET /api/buildings?page=1&limit=20&search=brooklyn
+Response: { data: [...], pagination: { page, limit, total, totalPages } }
+```
+
+**Error Responses:**
+```json
+{ "message": "Building not found" }
+```
+Status codes: 400 (validation), 401 (unauth), 403 (forbidden), 404 (not found), 500 (server)
+
+### External Integrations
+
+**Google Maps Geocoding:**
+- Called on building submission
+- Validates NYC address
+- Stores lat/lng for duplicate detection
+- Environment variable: `GOOGLE_MAPS_API_KEY`
+
+**Postmark Email:**
+- Password reset emails
+- Optional: review notifications
+- Environment variable: `POSTMARK_API_KEY`
+
+**Replit Object Storage:**
+- Review photo uploads
+- Path: `reviews/{reviewId}/{uuid}.{ext}`
+- Max: 5MB per file
+- Types: JPEG, PNG, WebP
+
+### Infrastructure & Deployment
+
+**Hosting:** Replit (established)
+- Single port 5000
+- Auto-scaling handled by platform
+
+**Environment Variables:**
+- `DATABASE_URL` - PostgreSQL connection
+- `SESSION_SECRET` - Express session secret
+- `GOOGLE_MAPS_API_KEY` - Geocoding
+- `POSTMARK_API_KEY` - Email service
 
