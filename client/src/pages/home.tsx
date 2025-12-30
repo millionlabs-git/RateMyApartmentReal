@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 
+// Import videos as assets so they're properly bundled
+import nycDayVideo from "@assets/upscale.mp4";
+import nycNightVideo from "@assets/nyc-background.mp4";
+
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -204,7 +208,7 @@ export default function Home() {
           poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
           data-testid="video-background-day"
         >
-          <source src="/nyc-day.mp4" type="video/mp4" />
+          <source src={nycDayVideo} type="video/mp4" />
         </video>
 
         {/* Night Video Background */}
@@ -221,7 +225,7 @@ export default function Home() {
           poster="/nyc-night.jpg"
           data-testid="video-background-night"
         >
-          <source src="/nyc-background.mp4" type="video/mp4" />
+          <source src={nycNightVideo} type="video/mp4" />
         </video>
 
         {/* Dark Overlay - deeper for night mode */}
