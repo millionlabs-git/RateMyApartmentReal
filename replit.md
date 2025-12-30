@@ -4,6 +4,13 @@
 
 A community-driven platform for NYC renters to find and share honest, anonymous reviews of apartment buildings. The application features an editorial, warm design aesthetic inspired by Airbnb and Medium, with glassmorphic UI elements and a focus on transparency and trustworthiness.
 
+## Recent Changes (December 30, 2025)
+
+- **Homepage Implementation**: Full-screen hero section with NYC video background, glassmorphic search bar, "How It Works" section, and footer
+- **Responsive Navigation**: Fixed navbar with scroll-based background transition, mobile hamburger menu using Sheet component
+- **Design Tokens**: Configured Instrument Serif and DM Sans fonts, warm neutral color palette with amber accents
+- **Video Integration**: Background video (nyc-background.mp4) imported via @assets alias and properly served by Vite
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
