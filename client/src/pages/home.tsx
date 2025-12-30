@@ -134,25 +134,23 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen min-h-[700px] flex flex-col items-center justify-center text-center px-4 md:px-8 overflow-hidden">
         {/* Video Background */}
-        <div className="absolute inset-0 -z-20">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-            poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
-            data-testid="video-background"
-          >
-            <source src="/nyc-background.mp4" type="video/mp4" />
-          </video>
-        </div>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80"
+          data-testid="video-background"
+        >
+          <source src="/nyc-background.mp4" type="video/mp4" />
+        </video>
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/35 via-black/45 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/60" />
 
         {/* Hero Content */}
-        <div className="max-w-[700px] animate-fadeIn">
+        <div className="relative z-10 max-w-[700px] animate-fadeIn">
           <h1
             className="font-serif text-4xl md:text-5xl lg:text-[4rem] font-normal text-white leading-[1.1] tracking-tight mb-5"
             data-testid="text-hero-title"
@@ -209,7 +207,7 @@ export default function Home() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-xs tracking-widest uppercase animate-fadeInDelayed">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 text-xs tracking-widest uppercase animate-fadeInDelayed">
           <span>Scroll</span>
           <span className="w-px h-10 bg-gradient-to-b from-white/50 to-transparent animate-pulse" />
         </div>
