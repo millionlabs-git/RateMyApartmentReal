@@ -421,7 +421,7 @@ export default function Home() {
             <img 
               src={logoImage} 
               alt="Rate My Apartment" 
-              className="h-[135px] w-auto -my-7"
+              className={`h-[135px] w-auto -my-7 transition-all duration-400 ${isDark ? "brightness-0 invert" : ""}`}
             />
           </div>
 
