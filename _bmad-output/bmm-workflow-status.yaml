@@ -78,28 +78,35 @@ workflow_status:
     name: "Solutioning"
     workflows:
       - id: "create-architecture"
-        status: "recommended"
+        status: "_bmad-output/planning-artifacts/architecture.md"
         agent: "architect"
         command: "/bmad:bmm:workflows:create-architecture"
-        note: "HIGHLY RECOMMENDED - Creates focused solution design from brownfield context"
+        completed: "2025-12-30"
+        note: "COMPLETED - Architecture decisions, patterns, and structure documented"
 
       - id: "create-epics-and-stories"
-        status: "required"
+        status: "_bmad-output/planning-artifacts/epics.md"
         agent: "pm"
         command: "/bmad:bmm:workflows:create-epics-and-stories"
-        note: "Break down PRD into implementable stories"
+        completed: "2025-12-31"
+        note: "COMPLETED - 6 epics, 29 stories created"
+        outputs:
+          - "_bmad-output/planning-artifacts/epics.md"
+          - "_bmad-output/planning-artifacts/prd.md"
 
       - id: "test-design"
-        status: "recommended"
+        status: "_bmad-output/test-design-system.md"
         agent: "tea"
         command: "/bmad:bmm:workflows:testarch-test-design"
-        note: "System-level testability review"
+        completed: "2025-12-31"
+        note: "COMPLETED - System-level testability review with NFR validation strategy"
 
       - id: "implementation-readiness"
-        status: "required"
+        status: "_bmad-output/planning-artifacts/implementation-readiness-report.md"
         agent: "architect"
         command: "/bmad:bmm:workflows:check-implementation-readiness"
-        note: "Gate check before implementation"
+        completed: "2025-12-31"
+        note: "COMPLETED - All checks passed, ready for implementation"
 
   # PHASE 3 - Implementation
   phase_3:
@@ -113,7 +120,7 @@ workflow_status:
 
 # Next action determined by first incomplete required workflow
 next_action:
-  workflow: "create-architecture"
-  agent: "architect"
-  command: "/bmad:bmm:workflows:create-architecture"
-  reason: "Document existing architecture decisions and create solution design for pending features"
+  workflow: "sprint-planning"
+  agent: "sm"
+  command: "/bmad:bmm:workflows:sprint-planning"
+  reason: "Implementation readiness passed - begin sprint planning for Epic 1"
