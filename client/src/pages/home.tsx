@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { Search, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const { isDark } = useTheme();
+  const [, setLocation] = useLocation();
   
   const dayVideoRef = useRef<HTMLVideoElement>(null);
   const nightVideoRef = useRef<HTMLVideoElement>(null);
@@ -82,7 +84,11 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Search:", searchQuery);
+    if (searchQuery.trim()) {
+      setLocation(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      setLocation("/search");
+    }
   };
 
   return (

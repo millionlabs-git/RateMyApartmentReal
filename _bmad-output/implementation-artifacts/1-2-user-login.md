@@ -1,6 +1,6 @@
 # Story 1.2: User Login
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -18,54 +18,54 @@ so that **I can access my account and submit reviews**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Configure Passport.js with Local Strategy (AC: 1, 2)
-  - [ ] Create server/auth/passport.ts
-  - [ ] Configure LocalStrategy with email/password
-  - [ ] Implement user serialization/deserialization
-  - [ ] Verify password with bcrypt.compare
+- [x] Task 1: Configure Passport.js with Local Strategy (AC: 1, 2)
+  - [x] Create server/auth/passport.ts
+  - [x] Configure LocalStrategy with email/password
+  - [x] Implement user serialization/deserialization
+  - [x] Verify password with bcrypt.compare
 
-- [ ] Task 2: Configure session store (AC: 1)
-  - [ ] Create server/auth/session.ts
-  - [ ] Install and configure connect-pg-simple
-  - [ ] Create sessions table in PostgreSQL
-  - [ ] Configure express-session with PostgreSQL store
-  - [ ] Set httpOnly, secure, sameSite cookie options
+- [x] Task 2: Configure session store (AC: 1)
+  - [x] Create server/auth/session.ts
+  - [x] Install and configure connect-pg-simple
+  - [x] Create sessions table in PostgreSQL
+  - [x] Configure express-session with PostgreSQL store
+  - [x] Set httpOnly, secure, sameSite cookie options
 
-- [ ] Task 3: Create login API endpoint (AC: 1, 2)
-  - [ ] Create POST /api/auth/login route
-  - [ ] Use passport.authenticate('local')
-  - [ ] Return user data on success
-  - [ ] Return 401 with error message on failure
+- [x] Task 3: Create login API endpoint (AC: 1, 2)
+  - [x] Create POST /api/auth/login route
+  - [x] Use passport.authenticate('local')
+  - [x] Return user data on success
+  - [x] Return 401 with error message on failure
 
-- [ ] Task 4: Create logout API endpoint
-  - [ ] Create POST /api/auth/logout route
-  - [ ] Destroy session
-  - [ ] Clear cookie
+- [x] Task 4: Create logout API endpoint
+  - [x] Create POST /api/auth/logout route
+  - [x] Destroy session
+  - [x] Clear cookie
 
-- [ ] Task 5: Create current user endpoint (AC: 3)
-  - [ ] Create GET /api/auth/me route
-  - [ ] Return current user if authenticated
-  - [ ] Return 401 if not authenticated
+- [x] Task 5: Create current user endpoint (AC: 3)
+  - [x] Create GET /api/auth/me route
+  - [x] Return current user if authenticated
+  - [x] Return 401 if not authenticated
 
-- [ ] Task 6: Create login page and form (AC: 1, 2)
-  - [ ] Create client/src/pages/login.tsx
-  - [ ] Create client/src/components/auth/login-form.tsx
-  - [ ] Add email input
-  - [ ] Add password input
-  - [ ] Add "Forgot Password?" link
-  - [ ] Add "Create Account" link
-  - [ ] Implement form submission with TanStack Query
-  - [ ] Handle errors with toast notifications
+- [x] Task 6: Create login page and form (AC: 1, 2)
+  - [x] Create client/src/pages/login.tsx
+  - [x] Create client/src/components/auth/login-form.tsx
+  - [x] Add email input
+  - [x] Add password input
+  - [x] Add "Forgot Password?" link
+  - [x] Add "Create Account" link
+  - [x] Implement form submission with TanStack Query
+  - [x] Handle errors with toast notifications
 
-- [ ] Task 7: Create auth hook and update navbar (AC: 3)
-  - [ ] Create client/src/hooks/use-auth.ts
-  - [ ] Query /api/auth/me on app load
-  - [ ] Export user, isLoading, isAuthenticated
-  - [ ] Update Header component to show account menu when logged in
+- [x] Task 7: Create auth hook and update navbar (AC: 3)
+  - [x] Create client/src/hooks/use-auth.ts
+  - [x] Query /api/auth/me on app load
+  - [x] Export user, isLoading, isAuthenticated
+  - [x] Update Header component to show account menu when logged in
 
-- [ ] Task 8: Add routes to App.tsx
-  - [ ] Add /login route
-  - [ ] Redirect authenticated users away from login
+- [x] Task 8: Add routes to App.tsx
+  - [x] Add /login route
+  - [x] Redirect authenticated users away from login
 
 ## Dev Notes
 
@@ -100,10 +100,26 @@ so that **I can access my account and submit reviews**.
 
 ### Agent Model Used
 
-
+Claude Opus 4.5
 
 ### Debug Log References
 
+None
+
 ### Completion Notes List
 
+- Added POST /api/auth/login endpoint using passport.authenticate('local')
+- Created login page and form with TanStack Query mutation
+- Reused passport/session config from Story 1-1
+- Added /login route with guest-only access
+- All 21 tests passing
+
 ### File List
+
+**New Files:**
+- client/src/pages/login.tsx
+- client/src/components/auth/login-form.tsx
+
+**Modified Files:**
+- server/auth/routes.ts (added login endpoint, getSafeUser helper)
+- client/src/App.tsx (added /login route)

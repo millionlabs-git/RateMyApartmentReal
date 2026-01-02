@@ -1,16 +1,45 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import session from "express-session";
+import passport from "./auth/passport";
+import authRoutes from "./auth/routes";
+import userRoutes from "./user/routes";
+import buildingsRoutes from "./buildings/routes";
+import adminRoutes from "./admin/routes";
 import { storage } from "./storage";
+import MemoryStore from "memorystore";
+
+const MemoryStoreSession = MemoryStore(session);
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  const sessionSecret = process.env.SESSION_SECRET || "dev-secret-change-in-production";
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.use(
+    session({
+      store: new MemoryStoreSession({
+        checkPeriod: 86400000,
+      }),
+      secret: sessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      },
+    })
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use("/api/auth", authRoutes);
+  app.use("/api/user", userRoutes);
+  app.use("/api/buildings", buildingsRoutes);
+  app.use("/api/admin", adminRoutes);
 
   return httpServer;
 }

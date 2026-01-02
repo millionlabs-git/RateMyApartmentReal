@@ -1,6 +1,6 @@
 # Story 1.1: User Registration
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -18,48 +18,48 @@ so that **I can save my reviews and access personalized features**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Extend users table schema (AC: 1)
-  - [ ] Add email column (unique, not null)
-  - [ ] Add password_hash column (not null)
-  - [ ] Add role column (enum: user, admin, default: user)
-  - [ ] Add status column (enum: active, suspended, default: active)
-  - [ ] Add created_at column (timestamp, default: now)
-  - [ ] Run database migration
+- [x] Task 1: Extend users table schema (AC: 1)
+  - [x] Add email column (unique, not null)
+  - [x] Add password_hash column (not null)
+  - [x] Add role column (enum: user, admin, default: user)
+  - [x] Add status column (enum: active, suspended, default: active)
+  - [x] Add created_at column (timestamp, default: now)
+  - [x] Run database migration
 
-- [ ] Task 2: Create signup API endpoint (AC: 1, 2, 3)
-  - [ ] Create POST /api/auth/signup route
-  - [ ] Implement Zod validation schema for signup
-  - [ ] Hash password with bcrypt (12 rounds)
-  - [ ] Check for existing email before creating
-  - [ ] Create user record in database
-  - [ ] Create session after successful signup
-  - [ ] Return user data (without password_hash)
+- [x] Task 2: Create signup API endpoint (AC: 1, 2, 3)
+  - [x] Create POST /api/auth/signup route
+  - [x] Implement Zod validation schema for signup
+  - [x] Hash password with bcrypt (12 rounds)
+  - [x] Check for existing email before creating
+  - [x] Create user record in database
+  - [x] Create session after successful signup
+  - [x] Return user data (without password_hash)
 
-- [ ] Task 3: Create signup page and form (AC: 1, 2, 3)
-  - [ ] Create client/src/pages/signup.tsx
-  - [ ] Create client/src/components/auth/signup-form.tsx
-  - [ ] Add email input with validation
-  - [ ] Add password input with strength indicator component
-  - [ ] Add confirm password input with match validation
-  - [ ] Add Terms of Service checkbox
-  - [ ] Implement form submission with TanStack Query mutation
-  - [ ] Add loading state and error handling
+- [x] Task 3: Create signup page and form (AC: 1, 2, 3)
+  - [x] Create client/src/pages/signup.tsx
+  - [x] Create client/src/components/auth/signup-form.tsx
+  - [x] Add email input with validation
+  - [x] Add password input with strength indicator component
+  - [x] Add confirm password input with match validation
+  - [x] Add Terms of Service checkbox
+  - [x] Implement form submission with TanStack Query mutation
+  - [x] Add loading state and error handling
 
-- [ ] Task 4: Implement password strength indicator (AC: 2)
-  - [ ] Create client/src/components/auth/password-strength.tsx
-  - [ ] Check minimum 8 characters
-  - [ ] Check for uppercase, lowercase, number, special char
-  - [ ] Display visual strength meter (weak/medium/strong)
+- [x] Task 4: Implement password strength indicator (AC: 2)
+  - [x] Create client/src/components/auth/password-strength.tsx
+  - [x] Check minimum 8 characters
+  - [x] Check for uppercase, lowercase, number, special char
+  - [x] Display visual strength meter (weak/medium/strong)
 
-- [ ] Task 5: Configure Postmark welcome email (AC: 1)
-  - [ ] Create server/services/email.ts
-  - [ ] Configure Postmark client with API key
-  - [ ] Create welcome email template
-  - [ ] Send welcome email on successful signup
+- [x] Task 5: Configure Postmark welcome email (AC: 1)
+  - [x] Create server/services/email.ts
+  - [x] Configure Postmark client with API key
+  - [x] Create welcome email template
+  - [x] Send welcome email on successful signup
 
-- [ ] Task 6: Add route to App.tsx
-  - [ ] Add /signup route
-  - [ ] Redirect authenticated users away from signup
+- [x] Task 6: Add route to App.tsx
+  - [x] Add /signup route
+  - [x] Redirect authenticated users away from signup
 
 ## Dev Notes
 
@@ -99,10 +99,43 @@ so that **I can save my reviews and access personalized features**.
 
 ### Agent Model Used
 
-
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+None
+
 ### Completion Notes List
 
+- Implemented full user registration flow following red-green-refactor TDD cycle
+- Extended users table schema with email, password_hash, role (enum), status (enum), created_at
+- Created POST /api/auth/signup endpoint with Zod validation, bcrypt hashing (12 rounds), session creation
+- Built signup page with react-hook-form, TanStack Query mutation, loading/error states
+- Created password strength indicator with visual meter (weak/medium/strong) and requirement checklist
+- Configured Postmark email service with HTML/text welcome email templates
+- Added /signup route with guest-only access (redirects authenticated users)
+- All 21 tests passing (schema, auth validation, password strength)
+- TypeScript compiles without errors
+
 ### File List
+
+**New Files:**
+- client/src/pages/signup.tsx
+- client/src/components/auth/signup-form.tsx
+- client/src/components/auth/password-strength.tsx
+- client/src/components/auth/password-strength.test.ts
+- client/src/hooks/use-auth.ts
+- server/auth/routes.ts
+- server/auth/passport.ts
+- server/services/email.ts
+- server/types.d.ts
+- server/__tests__/schema.test.ts
+- server/__tests__/auth.test.ts
+- vitest.config.ts
+
+**Modified Files:**
+- shared/schema.ts (extended users table, added enums, signupSchema)
+- server/storage.ts (updated interface for email-based lookup)
+- server/routes.ts (added session/passport middleware, auth routes)
+- client/src/App.tsx (added /signup route, GuestRoute component)
+- package.json (added test scripts, bcrypt, vitest, postmark)
