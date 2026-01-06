@@ -111,7 +111,7 @@ export function PhotoUpload({
         onDragLeave={handleDragLeave}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragging
-            ? "border-[#B45309] bg-amber-50 dark:bg-amber-900/20"
+            ? "border-[#ebba48] bg-amber-50 dark:bg-amber-900/20"
             : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
         } ${photos.length >= maxPhotos ? "opacity-50 cursor-not-allowed" : ""}`}
       >

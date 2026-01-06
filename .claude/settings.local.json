@@ -6,7 +6,14 @@
       "Bash(npm install:*)",
       "Bash(npm run check:*)",
       "Bash(npm test:*)",
-      "Bash(npm run db:push:*)"
+      "Bash(npm run db:push:*)",
+      "Bash(node -e:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(sqlite3:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }

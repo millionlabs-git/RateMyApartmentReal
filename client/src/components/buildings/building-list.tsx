@@ -19,12 +19,12 @@ interface BuildingListProps {
 
 function BuildingCardSkeleton() {
   return (
-    <div className="border border-[#E7E5E4] bg-white dark:bg-gray-800 rounded-xl p-6">
-      <Skeleton className="h-6 w-3/4 mb-2" />
-      <Skeleton className="h-4 w-full mb-3" />
+    <div className="glass-card rounded-2xl p-6">
+      <Skeleton className="h-6 w-3/4 mb-3" />
+      <Skeleton className="h-4 w-full mb-4" />
       <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-20" />
       </div>
     </div>
   );
@@ -43,18 +43,18 @@ export function BuildingList({ buildings, isLoading }: BuildingListProps) {
 
   if (buildings.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-          <Building2 className="h-8 w-8 text-gray-400" />
+      <div className="glass-card rounded-2xl p-12 text-center">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#ebba48]/10 dark:bg-[#ebba48]/20">
+          <Building2 className="h-10 w-10 text-[#ebba48]" />
         </div>
-        <h3 className="font-serif text-xl text-[#1C1917] dark:text-white mb-2">
+        <h3 className="font-serif text-2xl text-[#1C1917] dark:text-white mb-3">
           No buildings found
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          Try a different search or add a new building.
+        <p className="text-[#57534E] dark:text-gray-400 mb-6 max-w-md mx-auto">
+          We couldn't find any buildings matching your search. Try a different query or be the first to add this building.
         </p>
         <Link href="/add-building">
-          <Button className="bg-[#B45309] hover:bg-[#92400E] text-white">
+          <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 py-2.5 rounded-xl">
             <Plus className="mr-2 h-4 w-4" />
             Add Building
           </Button>

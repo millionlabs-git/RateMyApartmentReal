@@ -134,7 +134,7 @@ export function PasswordChangeForm() {
 
         <Button
           type="submit"
-          className="bg-[#B45309] hover:bg-[#92400E] text-white"
+          className="bg-[#ebba48] hover:bg-[#C49A3C] text-white"
           disabled={changeMutation.isPending}
         >
           {changeMutation.isPending ? "Updating..." : "Update Password"}

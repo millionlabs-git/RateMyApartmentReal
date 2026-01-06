@@ -12,21 +12,26 @@
   --background: 30 12% 97%;
   --foreground: 20 6% 12%;
   --border: 30 8% 90%;
-  --card: 30 10% 95%;
+  --card: 30 10% 98% / 0.7;
   --card-foreground: 20 6% 12%;
-  --card-border: 30 8% 92%;
+  --card-border: 30 8% 100% / 0.5;
+  --glass-blur: 16px;
+  --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%);
+  --glass-border: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 100%);
+  --luxury-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --luxury-shadow-hover: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
   --sidebar: 30 8% 93%;
   --sidebar-foreground: 20 6% 12%;
   --sidebar-border: 30 8% 89%;
-  --sidebar-primary: 28 90% 48%;
+  --sidebar-primary: 42 81% 60%;
   --sidebar-primary-foreground: 30 10% 98%;
   --sidebar-accent: 30 8% 88%;
   --sidebar-accent-foreground: 20 6% 12%;
-  --sidebar-ring: 28 90% 48%;
+  --sidebar-ring: 42 81% 60%;
   --popover: 30 10% 91%;
   --popover-foreground: 20 6% 12%;
   --popover-border: 30 8% 87%;
-  --primary: 32 95% 44%;
+  --primary: 42 81% 60%;
   --primary-foreground: 40 20% 98%;
   --secondary: 30 8% 86%;
   --secondary-foreground: 20 6% 12%;
@@ -37,8 +42,8 @@
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 10% 98%;
   --input: 20 6% 30%;
-  --ring: 28 90% 48%;
-  --chart-1: 28 90% 48%;
+  --ring: 42 81% 60%;
+  --chart-1: 42 81% 60%;
   --chart-2: 200 80% 45%;
   --chart-3: 150 70% 40%;
   --chart-4: 280 65% 50%;
@@ -49,8 +54,8 @@
   --ink: 28 9% 9%;
   --ink-light: 24 6% 33%;
   --ink-muted: 25 5% 65%;
-  --amber: 32 95% 44%;
-  --honey: 38 92% 50%;
+  --amber: 42 81% 60%;
+  --honey: 42 81% 60%;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(30 10% 20% / 0.03);
   --shadow-xs: 0px 2px 0px 0px hsl(30 10% 20% / 0.05);
@@ -101,21 +106,26 @@
   --background: 20 6% 8%;
   --foreground: 30 10% 96%;
   --border: 20 6% 18%;
-  --card: 20 6% 10%;
+  --card: 20 6% 12% / 0.6;
   --card-foreground: 30 10% 96%;
-  --card-border: 20 6% 13%;
+  --card-border: 20 6% 25% / 0.4;
+  --glass-blur: 20px;
+  --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+  --glass-border: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%);
+  --luxury-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+  --luxury-shadow-hover: 0 16px 48px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
   --sidebar: 20 6% 12%;
   --sidebar-foreground: 30 10% 96%;
   --sidebar-border: 20 6% 16%;
-  --sidebar-primary: 28 90% 52%;
+  --sidebar-primary: 42 81% 60%;
   --sidebar-primary-foreground: 20 6% 8%;
   --sidebar-accent: 20 6% 16%;
   --sidebar-accent-foreground: 30 10% 96%;
-  --sidebar-ring: 28 90% 52%;
+  --sidebar-ring: 42 81% 60%;
   --popover: 20 6% 14%;
   --popover-foreground: 30 10% 96%;
   --popover-border: 20 6% 18%;
-  --primary: 28 90% 52%;
+  --primary: 42 81% 60%;
   --primary-foreground: 20 6% 8%;
   --secondary: 20 6% 18%;
   --secondary-foreground: 30 10% 96%;
@@ -126,8 +136,8 @@
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 10% 98%;
   --input: 30 10% 70%;
-  --ring: 28 90% 52%;
-  --chart-1: 28 90% 60%;
+  --ring: 42 81% 60%;
+  --chart-1: 42 81% 65%;
   --chart-2: 200 80% 65%;
   --chart-3: 150 70% 60%;
   --chart-4: 280 65% 65%;
@@ -302,4 +312,576 @@
     transform: scaleY(0.6);
     transform-origin: bottom;
   }
+}
+
+/* ============================================
+   GLASSMORPHIC & LUXURY STYLES
+   ============================================ */
+
+/* Glassmorphic Card Styling */
+.glass-card {
+  background: hsl(var(--card));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--card-border));
+  box-shadow: var(--luxury-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--glass-border);
+  opacity: 0.8;
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 50%;
+  bottom: 50%;
+  background: var(--glass-shine);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.glass-card:hover {
+  box-shadow: var(--luxury-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Luxury Button Styling */
+.luxury-btn {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.luxury-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.luxury-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(235, 186, 72, 0.3);
+}
+
+.luxury-btn:active {
+  transform: translateY(0);
+}
+
+/* Glass Input Styling */
+.glass-input {
+  background: hsl(var(--card));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--card-border));
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+/* Subtle shimmer effect for premium feel */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Gold accent glow for luxury elements */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(235, 186, 72, 0.2), 0 0 40px rgba(235, 186, 72, 0.1);
+}
+
+/* Frosted sidebar */
+.frosted-sidebar {
+  background: hsl(var(--sidebar) / 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Premium badge styling */
+.glass-badge {
+  background: hsl(var(--card));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--card-border));
+}
+
+/* ============================================
+   LIQUID GLASS EFFECT STYLES
+   ============================================ */
+
+/* Liquid glass container base */
+.liquid-glass {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--card));
+  backdrop-filter: blur(24px) saturate(1.8) contrast(1.1) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8) contrast(1.1) brightness(1.05);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 2px 20px rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .liquid-glass {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 2px 20px rgba(255, 255, 255, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.liquid-glass:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+    inset 0 2px 24px rgba(255, 255, 255, 0.15),
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Liquid glass header - translucent */
+.liquid-glass-header {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .liquid-glass-header {
+  background: rgba(17, 24, 39, 0.6) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Footer - translucent liquid glass */
+.footer-fade {
+  background: rgba(253, 250, 246, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .footer-fade {
+  background: rgba(17, 24, 39, 0.6) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Search page background - blue with lighter edges for translucent header/footer */
+.search-page-bg {
+  background: linear-gradient(
+    to bottom,
+    rgba(186, 230, 253, 0.9) 0%,
+    #7DD3FC 8%,
+    #7DD3FC 92%,
+    rgba(186, 230, 253, 0.9) 100%
+  );
+}
+
+.dark .search-page-bg {
+  background: linear-gradient(
+    to bottom,
+    rgba(41, 37, 36, 0.9) 0%,
+    #1C1917 8%,
+    #1C1917 92%,
+    rgba(41, 37, 36, 0.9) 100%
+  );
+}
+
+/* Liquid glass modal overlay */
+.liquid-glass-modal {
+  background: hsl(var(--card));
+  backdrop-filter: blur(32px) saturate(2) contrast(1.1) brightness(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(2) contrast(1.1) brightness(1.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    inset 0 4px 30px rgba(255, 255, 255, 0.12),
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.dark .liquid-glass-modal {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 4px 30px rgba(255, 255, 255, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes liquid-glass-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    backdrop-filter: blur(32px) saturate(2);
+  }
+}
+
+/* Liquid glass hero search variant */
+.liquid-glass-hero {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.liquid-glass-hero:focus-within {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Subtle animated gradient overlay for liquid effect */
+.liquid-gradient {
+  position: relative;
+}
+
+.liquid-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  background-size: 200% 200%;
+  animation: liquid-shift 8s ease infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+@keyframes liquid-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* NYC Skyline Background Pattern */
+.nyc-skyline-bg {
+  position: relative;
+  background:
+    linear-gradient(180deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 60%,
+      hsl(var(--primary) / 0.03) 100%
+    );
+}
+
+/* Daytime skyline - grey silhouette with windows */
+.nyc-skyline-bg::before {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Cdefs%3E%3ClinearGradient id='bldg-day' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236B7280'/%3E%3Cstop offset='100%25' stop-color='%234B5563'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23bldg-day)'%3E%3Crect x='0' y='120' width='35' height='80'/%3E%3Crect x='40' y='80' width='30' height='120'/%3E%3Crect x='75' y='100' width='25' height='100'/%3E%3Crect x='105' y='40' width='40' height='160'/%3E%3Crect x='108' y='20' width='8' height='20'/%3E%3Crect x='150' y='90' width='35' height='110'/%3E%3Crect x='190' y='60' width='45' height='140'/%3E%3Crect x='240' y='110' width='30' height='90'/%3E%3Crect x='275' y='30' width='50' height='170'/%3E%3Crect x='295' y='5' width='10' height='25'/%3E%3Crect x='330' y='85' width='35' height='115'/%3E%3Crect x='370' y='50' width='40' height='150'/%3E%3Crect x='415' y='95' width='30' height='105'/%3E%3Crect x='450' y='25' width='55' height='175'/%3E%3Crect x='472' y='0' width='12' height='25'/%3E%3Crect x='510' y='75' width='35' height='125'/%3E%3Crect x='550' y='105' width='28' height='95'/%3E%3Crect x='583' y='45' width='42' height='155'/%3E%3Crect x='630' y='88' width='32' height='112'/%3E%3Crect x='667' y='35' width='48' height='165'/%3E%3Crect x='686' y='10' width='10' height='25'/%3E%3Crect x='720' y='70' width='38' height='130'/%3E%3Crect x='763' y='100' width='30' height='100'/%3E%3Crect x='798' y='55' width='44' height='145'/%3E%3Crect x='847' y='90' width='33' height='110'/%3E%3Crect x='885' y='20' width='52' height='180'/%3E%3Crect x='905' y='0' width='12' height='20'/%3E%3Crect x='942' y='78' width='36' height='122'/%3E%3Crect x='983' y='108' width='28' height='92'/%3E%3Crect x='1016' y='42' width='45' height='158'/%3E%3Crect x='1066' y='85' width='34' height='115'/%3E%3Crect x='1105' y='65' width='40' height='135'/%3E%3Crect x='1150' y='95' width='30' height='105'/%3E%3Crect x='1185' y='115' width='25' height='85'/%3E%3C/g%3E%3Cg fill='%239CA3AF'%3E%3Crect x='8' y='135' width='3' height='4'/%3E%3Crect x='8' y='145' width='3' height='4'/%3E%3Crect x='8' y='155' width='3' height='4'/%3E%3Crect x='20' y='135' width='3' height='4'/%3E%3Crect x='20' y='145' width='3' height='4'/%3E%3Crect x='48' y='95' width='3' height='4'/%3E%3Crect x='48' y='105' width='3' height='4'/%3E%3Crect x='48' y='115' width='3' height='4'/%3E%3Crect x='48' y='130' width='3' height='4'/%3E%3Crect x='48' y='145' width='3' height='4'/%3E%3Crect x='58' y='100' width='3' height='4'/%3E%3Crect x='58' y='115' width='3' height='4'/%3E%3Crect x='58' y='130' width='3' height='4'/%3E%3Crect x='115' y='55' width='3' height='4'/%3E%3Crect x='115' y='70' width='3' height='4'/%3E%3Crect x='115' y='85' width='3' height='4'/%3E%3Crect x='115' y='100' width='3' height='4'/%3E%3Crect x='115' y='115' width='3' height='4'/%3E%3Crect x='115' y='130' width='3' height='4'/%3E%3Crect x='130' y='60' width='3' height='4'/%3E%3Crect x='130' y='75' width='3' height='4'/%3E%3Crect x='130' y='90' width='3' height='4'/%3E%3Crect x='130' y='105' width='3' height='4'/%3E%3Crect x='160' y='105' width='3' height='4'/%3E%3Crect x='160' y='120' width='3' height='4'/%3E%3Crect x='160' y='135' width='3' height='4'/%3E%3Crect x='175' y='110' width='3' height='4'/%3E%3Crect x='175' y='125' width='3' height='4'/%3E%3Crect x='200' y='75' width='3' height='4'/%3E%3Crect x='200' y='90' width='3' height='4'/%3E%3Crect x='200' y='105' width='3' height='4'/%3E%3Crect x='200' y='120' width='3' height='4'/%3E%3Crect x='220' y='80' width='3' height='4'/%3E%3Crect x='220' y='95' width='3' height='4'/%3E%3Crect x='220' y='110' width='3' height='4'/%3E%3Crect x='285' y='50' width='3' height='4'/%3E%3Crect x='285' y='70' width='3' height='4'/%3E%3Crect x='285' y='90' width='3' height='4'/%3E%3Crect x='285' y='110' width='3' height='4'/%3E%3Crect x='285' y='130' width='3' height='4'/%3E%3Crect x='310' y='55' width='3' height='4'/%3E%3Crect x='310' y='75' width='3' height='4'/%3E%3Crect x='310' y='95' width='3' height='4'/%3E%3Crect x='310' y='115' width='3' height='4'/%3E%3Crect x='340' y='100' width='3' height='4'/%3E%3Crect x='340' y='115' width='3' height='4'/%3E%3Crect x='340' y='130' width='3' height='4'/%3E%3Crect x='355' y='105' width='3' height='4'/%3E%3Crect x='355' y='120' width='3' height='4'/%3E%3Crect x='380' y='65' width='3' height='4'/%3E%3Crect x='380' y='80' width='3' height='4'/%3E%3Crect x='380' y='95' width='3' height='4'/%3E%3Crect x='380' y='110' width='3' height='4'/%3E%3Crect x='380' y='130' width='3' height='4'/%3E%3Crect x='395' y='70' width='3' height='4'/%3E%3Crect x='395' y='90' width='3' height='4'/%3E%3Crect x='395' y='110' width='3' height='4'/%3E%3Crect x='460' y='45' width='3' height='4'/%3E%3Crect x='460' y='65' width='3' height='4'/%3E%3Crect x='460' y='85' width='3' height='4'/%3E%3Crect x='460' y='105' width='3' height='4'/%3E%3Crect x='460' y='125' width='3' height='4'/%3E%3Crect x='460' y='145' width='3' height='4'/%3E%3Crect x='490' y='50' width='3' height='4'/%3E%3Crect x='490' y='70' width='3' height='4'/%3E%3Crect x='490' y='90' width='3' height='4'/%3E%3Crect x='490' y='110' width='3' height='4'/%3E%3Crect x='490' y='130' width='3' height='4'/%3E%3Crect x='520' y='90' width='3' height='4'/%3E%3Crect x='520' y='110' width='3' height='4'/%3E%3Crect x='520' y='130' width='3' height='4'/%3E%3Crect x='535' y='95' width='3' height='4'/%3E%3Crect x='535' y='115' width='3' height='4'/%3E%3Crect x='595' y='60' width='3' height='4'/%3E%3Crect x='595' y='80' width='3' height='4'/%3E%3Crect x='595' y='100' width='3' height='4'/%3E%3Crect x='595' y='120' width='3' height='4'/%3E%3Crect x='595' y='140' width='3' height='4'/%3E%3Crect x='610' y='65' width='3' height='4'/%3E%3Crect x='610' y='85' width='3' height='4'/%3E%3Crect x='610' y='105' width='3' height='4'/%3E%3Crect x='640' y='105' width='3' height='4'/%3E%3Crect x='640' y='125' width='3' height='4'/%3E%3Crect x='640' y='145' width='3' height='4'/%3E%3Crect x='678' y='55' width='3' height='4'/%3E%3Crect x='678' y='75' width='3' height='4'/%3E%3Crect x='678' y='95' width='3' height='4'/%3E%3Crect x='678' y='115' width='3' height='4'/%3E%3Crect x='678' y='135' width='3' height='4'/%3E%3Crect x='678' y='155' width='3' height='4'/%3E%3Crect x='700' y='60' width='3' height='4'/%3E%3Crect x='700' y='80' width='3' height='4'/%3E%3Crect x='700' y='100' width='3' height='4'/%3E%3Crect x='700' y='120' width='3' height='4'/%3E%3Crect x='730' y='85' width='3' height='4'/%3E%3Crect x='730' y='105' width='3' height='4'/%3E%3Crect x='730' y='125' width='3' height='4'/%3E%3Crect x='745' y='90' width='3' height='4'/%3E%3Crect x='745' y='110' width='3' height='4'/%3E%3Crect x='810' y='70' width='3' height='4'/%3E%3Crect x='810' y='90' width='3' height='4'/%3E%3Crect x='810' y='110' width='3' height='4'/%3E%3Crect x='810' y='130' width='3' height='4'/%3E%3Crect x='830' y='75' width='3' height='4'/%3E%3Crect x='830' y='95' width='3' height='4'/%3E%3Crect x='830' y='115' width='3' height='4'/%3E%3Crect x='895' y='40' width='3' height='4'/%3E%3Crect x='895' y='60' width='3' height='4'/%3E%3Crect x='895' y='80' width='3' height='4'/%3E%3Crect x='895' y='100' width='3' height='4'/%3E%3Crect x='895' y='120' width='3' height='4'/%3E%3Crect x='895' y='140' width='3' height='4'/%3E%3Crect x='920' y='45' width='3' height='4'/%3E%3Crect x='920' y='65' width='3' height='4'/%3E%3Crect x='920' y='85' width='3' height='4'/%3E%3Crect x='920' y='105' width='3' height='4'/%3E%3Crect x='920' y='125' width='3' height='4'/%3E%3Crect x='955' y='95' width='3' height='4'/%3E%3Crect x='955' y='115' width='3' height='4'/%3E%3Crect x='955' y='135' width='3' height='4'/%3E%3Crect x='970' y='100' width='3' height='4'/%3E%3Crect x='970' y='120' width='3' height='4'/%3E%3Crect x='1028' y='60' width='3' height='4'/%3E%3Crect x='1028' y='80' width='3' height='4'/%3E%3Crect x='1028' y='100' width='3' height='4'/%3E%3Crect x='1028' y='120' width='3' height='4'/%3E%3Crect x='1028' y='140' width='3' height='4'/%3E%3Crect x='1048' y='65' width='3' height='4'/%3E%3Crect x='1048' y='85' width='3' height='4'/%3E%3Crect x='1048' y='105' width='3' height='4'/%3E%3Crect x='1048' y='125' width='3' height='4'/%3E%3Crect x='1075' y='100' width='3' height='4'/%3E%3Crect x='1075' y='120' width='3' height='4'/%3E%3Crect x='1075' y='140' width='3' height='4'/%3E%3Crect x='1115' y='80' width='3' height='4'/%3E%3Crect x='1115' y='100' width='3' height='4'/%3E%3Crect x='1115' y='120' width='3' height='4'/%3E%3Crect x='1115' y='140' width='3' height='4'/%3E%3Crect x='1130' y='85' width='3' height='4'/%3E%3Crect x='1130' y='105' width='3' height='4'/%3E%3Crect x='1130' y='125' width='3' height='4'/%3E%3Crect x='1160' y='110' width='3' height='4'/%3E%3Crect x='1160' y='130' width='3' height='4'/%3E%3Crect x='1170' y='115' width='3' height='4'/%3E%3Crect x='1170' y='135' width='3' height='4'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom center;
+  background-size: auto 100%;
+}
+
+/* Nighttime skyline - buildings only (no windows in base layer) */
+.dark .nyc-skyline-bg::before {
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Cdefs%3E%3ClinearGradient id='bldg-night' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23EBBA48'/%3E%3Cstop offset='100%25' stop-color='%23C49A3C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23bldg-night)'%3E%3Crect x='0' y='120' width='35' height='80'/%3E%3Crect x='40' y='80' width='30' height='120'/%3E%3Crect x='75' y='100' width='25' height='100'/%3E%3Crect x='105' y='40' width='40' height='160'/%3E%3Crect x='108' y='20' width='8' height='20'/%3E%3Crect x='150' y='90' width='35' height='110'/%3E%3Crect x='190' y='60' width='45' height='140'/%3E%3Crect x='240' y='110' width='30' height='90'/%3E%3Crect x='275' y='30' width='50' height='170'/%3E%3Crect x='295' y='5' width='10' height='25'/%3E%3Crect x='330' y='85' width='35' height='115'/%3E%3Crect x='370' y='50' width='40' height='150'/%3E%3Crect x='415' y='95' width='30' height='105'/%3E%3Crect x='450' y='25' width='55' height='175'/%3E%3Crect x='472' y='0' width='12' height='25'/%3E%3Crect x='510' y='75' width='35' height='125'/%3E%3Crect x='550' y='105' width='28' height='95'/%3E%3Crect x='583' y='45' width='42' height='155'/%3E%3Crect x='630' y='88' width='32' height='112'/%3E%3Crect x='667' y='35' width='48' height='165'/%3E%3Crect x='686' y='10' width='10' height='25'/%3E%3Crect x='720' y='70' width='38' height='130'/%3E%3Crect x='763' y='100' width='30' height='100'/%3E%3Crect x='798' y='55' width='44' height='145'/%3E%3Crect x='847' y='90' width='33' height='110'/%3E%3Crect x='885' y='20' width='52' height='180'/%3E%3Crect x='905' y='0' width='12' height='20'/%3E%3Crect x='942' y='78' width='36' height='122'/%3E%3Crect x='983' y='108' width='28' height='92'/%3E%3Crect x='1016' y='42' width='45' height='158'/%3E%3Crect x='1066' y='85' width='34' height='115'/%3E%3Crect x='1105' y='65' width='40' height='135'/%3E%3Crect x='1150' y='95' width='30' height='105'/%3E%3Crect x='1185' y='115' width='25' height='85'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Individual window animation layers - each window animates independently */
+/* Base styles shared by all window layers */
+.dark .nyc-skyline-bg::after,
+.dark .nyc-skyline-bg [class^="window-layer-"] {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-position: bottom center;
+  background-size: auto 100%;
+  filter: drop-shadow(0 0 1px rgba(252, 211, 77, 0.4));
+}
+
+/* Window 1 - Building at x=8 */
+.dark .nyc-skyline-bg::after {
+  content: '';
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='8' y='135' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win1 17s steps(1) infinite;
+}
+
+/* Window 2 - Building at x=48 */
+.dark .nyc-skyline-bg .window-layer-2 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='48' y='115' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win2 23s steps(1) infinite;
+  animation-delay: -7s;
+}
+
+/* Window 3 - Building at x=115 */
+.dark .nyc-skyline-bg .window-layer-3 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='115' y='85' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win3 19s steps(1) infinite;
+  animation-delay: -3s;
+}
+
+/* Window 4 - Building at x=200 */
+.dark .nyc-skyline-bg .window-layer-4 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='200' y='110' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win4 29s steps(1) infinite;
+  animation-delay: -11s;
+}
+
+/* Window 5 - Building at x=285 */
+.dark .nyc-skyline-bg .window-layer-5 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='285' y='90' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win5 13s steps(1) infinite;
+  animation-delay: -2s;
+}
+
+/* Window 6 - Building at x=340 */
+.dark .nyc-skyline-bg .window-layer-6 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='340' y='130' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win6 31s steps(1) infinite;
+  animation-delay: -19s;
+}
+
+/* Window 7 - Building at x=380 */
+.dark .nyc-skyline-bg .window-layer-7 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='380' y='100' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win7 21s steps(1) infinite;
+  animation-delay: -5s;
+}
+
+/* Window 8 - Building at x=460 */
+.dark .nyc-skyline-bg .window-layer-8 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='460' y='80' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win8 37s steps(1) infinite;
+  animation-delay: -23s;
+}
+
+/* Window 9 - Building at x=520 */
+.dark .nyc-skyline-bg .window-layer-9 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='520' y='125' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win9 11s steps(1) infinite;
+  animation-delay: -1s;
+}
+
+/* Window 10 - Building at x=595 */
+.dark .nyc-skyline-bg .window-layer-10 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='595' y='100' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win10 27s steps(1) infinite;
+  animation-delay: -13s;
+}
+
+/* Window 11 - Building at x=678 */
+.dark .nyc-skyline-bg .window-layer-11 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='678' y='90' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win11 41s steps(1) infinite;
+  animation-delay: -31s;
+}
+
+/* Window 12 - Building at x=730 */
+.dark .nyc-skyline-bg .window-layer-12 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='730' y='125' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win12 14s steps(1) infinite;
+  animation-delay: -4s;
+}
+
+/* Window 13 - Building at x=810 */
+.dark .nyc-skyline-bg .window-layer-13 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='810' y='110' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win13 33s steps(1) infinite;
+  animation-delay: -17s;
+}
+
+/* Window 14 - Building at x=895 */
+.dark .nyc-skyline-bg .window-layer-14 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='895' y='75' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win14 18s steps(1) infinite;
+  animation-delay: -8s;
+}
+
+/* Window 15 - Building at x=955 */
+.dark .nyc-skyline-bg .window-layer-15 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='955' y='130' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win15 43s steps(1) infinite;
+  animation-delay: -29s;
+}
+
+/* Window 16 - Building at x=1028 */
+.dark .nyc-skyline-bg .window-layer-16 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='1028' y='95' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win16 16s steps(1) infinite;
+  animation-delay: -6s;
+}
+
+/* Window 17 - Building at x=1115 */
+.dark .nyc-skyline-bg .window-layer-17 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='1115' y='115' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win17 39s steps(1) infinite;
+  animation-delay: -21s;
+}
+
+/* Window 18 - Second window on building x=115 (different timing) */
+.dark .nyc-skyline-bg .window-layer-18 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='115' y='55' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win18 47s steps(1) infinite;
+  animation-delay: -37s;
+}
+
+/* Window 19 - Second window on building x=460 (different timing) */
+.dark .nyc-skyline-bg .window-layer-19 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='460' y='155' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win19 12s steps(1) infinite;
+  animation-delay: -9s;
+}
+
+/* Window 20 - Second window on building x=678 (different timing) */
+.dark .nyc-skyline-bg .window-layer-20 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='678' y='160' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win20 53s steps(1) infinite;
+  animation-delay: -41s;
+}
+
+/* Window 21 - Second window on building x=895 (different timing) */
+.dark .nyc-skyline-bg .window-layer-21 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='895' y='150' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win21 22s steps(1) infinite;
+  animation-delay: -14s;
+}
+
+/* Window 22 - Building at x=160 */
+.dark .nyc-skyline-bg .window-layer-22 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='160' y='105' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win22 26s steps(1) infinite;
+  animation-delay: -16s;
+}
+
+/* Window 23 - Building at x=640 */
+.dark .nyc-skyline-bg .window-layer-23 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='640' y='140' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win23 34s steps(1) infinite;
+  animation-delay: -25s;
+}
+
+/* Window 24 - Building at x=1075 */
+.dark .nyc-skyline-bg .window-layer-24 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='xMidYMax slice'%3E%3Crect fill='%23FCD34D' x='1075' y='135' width='3' height='4'/%3E%3C/svg%3E");
+  animation: win24 15s steps(1) infinite;
+  animation-delay: -10s;
+}
+
+/* Individual window animation keyframes - each with unique on/off pattern */
+@keyframes win1 { 0%, 35% { opacity: 0.7; } 36%, 100% { opacity: 0; } }
+@keyframes win2 { 0%, 22% { opacity: 0; } 23%, 58% { opacity: 0.7; } 59%, 100% { opacity: 0; } }
+@keyframes win3 { 0%, 15% { opacity: 0.7; } 16%, 65% { opacity: 0; } 66%, 100% { opacity: 0.7; } }
+@keyframes win4 { 0%, 42% { opacity: 0; } 43%, 78% { opacity: 0.7; } 79%, 100% { opacity: 0; } }
+@keyframes win5 { 0%, 28% { opacity: 0.7; } 29%, 85% { opacity: 0; } 86%, 100% { opacity: 0.7; } }
+@keyframes win6 { 0%, 18% { opacity: 0; } 19%, 48% { opacity: 0.7; } 49%, 100% { opacity: 0; } }
+@keyframes win7 { 0%, 55% { opacity: 0.7; } 56%, 88% { opacity: 0; } 89%, 100% { opacity: 0.7; } }
+@keyframes win8 { 0%, 12% { opacity: 0; } 13%, 38% { opacity: 0.7; } 39%, 72% { opacity: 0; } 73%, 100% { opacity: 0.7; } }
+@keyframes win9 { 0%, 45% { opacity: 0.7; } 46%, 100% { opacity: 0; } }
+@keyframes win10 { 0%, 32% { opacity: 0; } 33%, 62% { opacity: 0.7; } 63%, 100% { opacity: 0; } }
+@keyframes win11 { 0%, 8% { opacity: 0.7; } 9%, 52% { opacity: 0; } 53%, 95% { opacity: 0.7; } 96%, 100% { opacity: 0; } }
+@keyframes win12 { 0%, 65% { opacity: 0; } 66%, 92% { opacity: 0.7; } 93%, 100% { opacity: 0; } }
+@keyframes win13 { 0%, 25% { opacity: 0.7; } 26%, 70% { opacity: 0; } 71%, 100% { opacity: 0.7; } }
+@keyframes win14 { 0%, 38% { opacity: 0; } 39%, 75% { opacity: 0.7; } 76%, 100% { opacity: 0; } }
+@keyframes win15 { 0%, 5% { opacity: 0.7; } 6%, 45% { opacity: 0; } 46%, 82% { opacity: 0.7; } 83%, 100% { opacity: 0; } }
+@keyframes win16 { 0%, 58% { opacity: 0; } 59%, 88% { opacity: 0.7; } 89%, 100% { opacity: 0; } }
+@keyframes win17 { 0%, 20% { opacity: 0.7; } 21%, 55% { opacity: 0; } 56%, 100% { opacity: 0.7; } }
+@keyframes win18 { 0%, 3% { opacity: 0; } 4%, 28% { opacity: 0.7; } 29%, 68% { opacity: 0; } 69%, 100% { opacity: 0.7; } }
+@keyframes win19 { 0%, 72% { opacity: 0.7; } 73%, 100% { opacity: 0; } }
+@keyframes win20 { 0%, 15% { opacity: 0; } 16%, 42% { opacity: 0.7; } 43%, 78% { opacity: 0; } 79%, 100% { opacity: 0.7; } }
+@keyframes win21 { 0%, 48% { opacity: 0.7; } 49%, 82% { opacity: 0; } 83%, 100% { opacity: 0.7; } }
+@keyframes win22 { 0%, 30% { opacity: 0; } 31%, 68% { opacity: 0.7; } 69%, 100% { opacity: 0; } }
+@keyframes win23 { 0%, 10% { opacity: 0.7; } 11%, 58% { opacity: 0; } 59%, 90% { opacity: 0.7; } 91%, 100% { opacity: 0; } }
+@keyframes win24 { 0%, 52% { opacity: 0; } 53%, 85% { opacity: 0.7; } 86%, 100% { opacity: 0; } }
+
+/* Refraction edge highlight */
+.liquid-edge {
+  position: relative;
+}
+
+.liquid-edge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }

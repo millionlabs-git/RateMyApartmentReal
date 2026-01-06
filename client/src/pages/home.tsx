@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
-import { Search, Menu } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Search, Menu, User, LogOut, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Import logo as asset
 import logoImage from "@assets/rate_my_apartment_horizontal_full_(1)_1767106423750.png";
@@ -20,7 +28,8 @@ export default function Home() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const { isDark } = useTheme();
   const [, setLocation] = useLocation();
-  
+  const { user, isAuthenticated, logout, isLoggingOut } = useAuth();
+
   const dayVideoRef = useRef<HTMLVideoElement>(null);
   const nightVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -97,7 +106,7 @@ export default function Home() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-4 md:py-6 flex justify-between items-center transition-all duration-400 ${
           scrolled
-            ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-sm py-3 md:py-4"
+            ? "liquid-glass-header liquid-edge py-3 md:py-4"
             : ""
         }`}
         data-testid="navbar"
@@ -118,7 +127,7 @@ export default function Home() {
           </div>
         </a>
 
-        <div className="flex items-center gap-6 md:gap-10">
+        <div className="flex items-center gap-4 md:gap-8">
           <a
             href="/search"
             className={`hidden md:block text-sm font-medium transition-colors ${
@@ -131,7 +140,7 @@ export default function Home() {
             Search
           </a>
           <a
-            href="/add"
+            href="/add-building"
             className={`hidden md:block text-sm font-medium transition-colors ${
               scrolled
                 ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
@@ -141,17 +150,75 @@ export default function Home() {
           >
             Add Building
           </a>
-          <a
-            href="/login"
-            className={`hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg ${
-              scrolled
-                ? "bg-[#B45309] text-white"
-                : "bg-[#B45309] text-white"
-            }`}
-            data-testid="link-login"
-          >
-            Sign In
-          </a>
+
+          {/* Theme Toggle */}
+          <div className="hidden md:block">
+            <ThemeToggle
+              className={
+                scrolled
+                  ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+                  : "text-white/85 hover:text-white hover:bg-white/10"
+              }
+            />
+          </div>
+
+          {/* Auth Section */}
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`hidden md:flex items-center gap-2 ${
+                    scrolled
+                      ? "text-[#57534E] hover:text-[#1C1917] hover:bg-black/5 dark:text-gray-400 dark:hover:text-white"
+                      : "text-white/85 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  <span className="max-w-[120px] truncate">{user.email}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {user.role === "admin" && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <a className="flex items-center gap-2 w-full">
+                          <Shield className="w-4 h-4" />
+                          Admin Dashboard
+                        </a>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <a className="flex items-center gap-2 w-full">
+                      Settings
+                    </a>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => logout()}
+                  disabled={isLoggingOut}
+                  className="text-red-600 dark:text-red-400"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {isLoggingOut ? "Signing out..." : "Sign Out"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <a
+              href="/login"
+              className={`hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg bg-[#ebba48] text-white`}
+              data-testid="link-login"
+            >
+              Sign In
+            </a>
+          )}
 
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -167,40 +234,80 @@ export default function Home() {
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] bg-white">
+            <SheetContent side="right" className="w-[280px] bg-white dark:bg-gray-900">
               <nav className="flex flex-col gap-6 mt-8">
                 <a
                   href="/search"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
+                  className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
                   data-testid="mobile-link-search"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Search Buildings
                 </a>
                 <a
-                  href="/add"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
+                  href="/add-building"
+                  className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
                   data-testid="mobile-link-add-building"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Add Building
                 </a>
-                <a
-                  href="/login"
-                  className="text-lg font-medium text-[#1C1917] hover:text-[#B45309] transition-colors"
-                  data-testid="mobile-link-login"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign In
-                </a>
-                <a
-                  href="/signup"
-                  className="inline-flex items-center justify-center bg-[#B45309] text-white px-6 py-3 rounded-md text-base font-medium hover:bg-[#92400E] transition-colors mt-2"
-                  data-testid="mobile-link-signup"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Create Account
-                </a>
+
+                {isAuthenticated && user ? (
+                  <>
+                    {user.role === "admin" && (
+                      <a
+                        href="/admin"
+                        className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Shield className="w-5 h-5" />
+                        Admin Dashboard
+                      </a>
+                    )}
+                    <a
+                      href="/settings"
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Settings
+                    </a>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      disabled={isLoggingOut}
+                      className="text-lg font-medium text-red-600 dark:text-red-400 hover:text-red-700 transition-colors text-left flex items-center gap-2"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      {isLoggingOut ? "Signing out..." : "Sign Out"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href="/login"
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
+                      data-testid="mobile-link-login"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </a>
+                    <a
+                      href="/signup"
+                      className="inline-flex items-center justify-center bg-[#ebba48] text-white px-6 py-3 rounded-md text-base font-medium hover:bg-[#C49A3C] transition-colors mt-2"
+                      data-testid="mobile-link-signup"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Create Account
+                    </a>
+                  </>
+                )}
+
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <ThemeToggle />
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
@@ -263,7 +370,7 @@ export default function Home() {
               {[40, 65, 55, 80, 45, 70, 50, 85, 60, 75].map((baseHeight, i) => (
                 <div
                   key={i}
-                  className="w-3 md:w-4 bg-gradient-to-t from-[#B45309] to-[#F59E0B] rounded-t-sm"
+                  className="w-3 md:w-4 bg-gradient-to-t from-[#ebba48] to-[#ebba48] rounded-t-sm"
                   style={{
                     animation: `skylineBounce 1.2s ease-in-out infinite`,
                     animationDelay: `${i * 80}ms`,
@@ -273,7 +380,7 @@ export default function Home() {
               ))}
             </div>
             {/* Ground line */}
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ebba48]" />
           </div>
           
           {/* Loading Text */}
@@ -288,13 +395,6 @@ export default function Home() {
               <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
             </div>
           </div>
-        </div>
-
-        {/* Day/Night Toggle */}
-        <div className={`absolute top-24 right-6 md:right-12 z-20 transition-opacity duration-500 ${
-          videoLoaded ? "opacity-100" : "opacity-0"
-        }`}>
-          <ThemeToggle variant="hero" />
         </div>
 
         {/* Hero Content */}
@@ -314,12 +414,10 @@ export default function Home() {
             Honest, anonymous reviews from real NYC renters.
           </p>
 
-          {/* Glassmorphic Search Box */}
+          {/* Liquid Glass Search Box */}
           <div className="w-full max-w-[600px] mx-auto">
             <form onSubmit={handleSearch}>
-              <div className="relative flex flex-col md:flex-row bg-white/12 backdrop-blur-xl rounded-2xl md:rounded-[20px] border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 focus-within:bg-white/18 focus-within:border-white/40 focus-within:shadow-[0_12px_40px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.15),0_0_0_1px_rgba(255,255,255,0.1)]">
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-white/5 to-white/10 pointer-events-none" />
+              <div className="relative flex flex-col md:flex-row liquid-glass-hero liquid-edge liquid-gradient rounded-2xl md:rounded-[20px] overflow-hidden">
 
                 {/* Search Icon */}
                 <Search className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70 pointer-events-none z-10 hidden md:block" />
@@ -369,7 +467,7 @@ export default function Home() {
       <section className="py-16 md:py-24 px-4 md:px-8 bg-white dark:bg-gray-900 transition-colors duration-500" data-testid="section-how-it-works">
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12 md:mb-16">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#B45309] mb-3">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#ebba48] mb-3">
               How It Works
             </p>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] font-normal text-[#1C1917] dark:text-white tracking-tight transition-colors">

@@ -34,7 +34,7 @@ function StarRating({ rating }: { rating: number | null }) {
 export function BuildingCard({ id, name, address, averageRating, reviewCount }: BuildingCardProps) {
   return (
     <Link href={`/building/${id}`}>
-      <Card className="cursor-pointer border border-[#E7E5E4] bg-white dark:bg-gray-800 rounded-xl transition-shadow hover:shadow-lg">
+      <Card liquid className="cursor-pointer">
         <CardContent className="p-6">
           <h3 className="font-serif text-lg font-medium text-[#1C1917] dark:text-white mb-2 line-clamp-1">
             {name}

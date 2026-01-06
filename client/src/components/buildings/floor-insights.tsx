@@ -49,7 +49,7 @@ function FloorBar({ floor, avgRating, reviewCount, isHovered, onHover, onLeave }
           className="w-full rounded-t-md transition-all duration-300"
           style={{
             height: `${heightPercent}%`,
-            backgroundColor: `rgba(217, 119, 6, ${opacity})`,
+            backgroundColor: `rgba(235, 186, 72, ${opacity})`,
             transform: isHovered ? "scaleX(1.1)" : "scaleX(1)",
           }}
         />
@@ -74,7 +74,7 @@ export function FloorInsights({ floorInsights }: FloorInsightsProps) {
 
   if (floorInsights.length === 0) {
     return (
-      <Card>
+      <Card liquid>
         <CardHeader>
           <CardTitle className="text-lg font-serif">Floor Insights</CardTitle>
         </CardHeader>
@@ -88,7 +88,7 @@ export function FloorInsights({ floorInsights }: FloorInsightsProps) {
   }
 
   return (
-    <Card>
+    <Card liquid>
       <CardHeader>
         <CardTitle className="text-lg font-serif">Floor Insights</CardTitle>
       </CardHeader>

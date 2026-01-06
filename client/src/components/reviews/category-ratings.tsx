@@ -28,7 +28,7 @@ export function CategoryRatingsDisplay({
 }: CategoryRatingsDisplayProps) {
   if (!hasReviews) {
     return (
-      <Card>
+      <Card liquid>
         <CardHeader>
           <CardTitle className="text-lg font-serif">Category Ratings</CardTitle>
         </CardHeader>
@@ -47,7 +47,7 @@ export function CategoryRatingsDisplay({
   }
 
   return (
-    <Card>
+    <Card liquid>
       <CardHeader>
         <CardTitle className="text-lg font-serif">Category Ratings</CardTitle>
       </CardHeader>

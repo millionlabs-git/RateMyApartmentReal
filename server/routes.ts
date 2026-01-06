@@ -6,6 +6,7 @@ import authRoutes from "./auth/routes";
 import userRoutes from "./user/routes";
 import buildingsRoutes from "./buildings/routes";
 import adminRoutes from "./admin/routes";
+import placesRoutes from "./places/routes";
 import { storage } from "./storage";
 import MemoryStore from "memorystore";
 
@@ -40,6 +41,7 @@ export async function registerRoutes(
   app.use("/api/user", userRoutes);
   app.use("/api/buildings", buildingsRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/places", placesRoutes);
 
   return httpServer;
 }

@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import logoImage from "@assets/rate_my_apartment_horizontal_full_(1)_1767106423750.png";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -32,16 +33,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-amber-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <aside className="w-64 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl border-r border-white/50 dark:border-gray-700/50 flex flex-col shadow-xl">
+        <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50">
           <Link href="/">
-            <h1 className="font-serif text-xl text-[#1C1917] dark:text-white cursor-pointer hover:text-[#B45309] transition-colors">
-              RateMyApartment
-            </h1>
+            <div className="h-10 overflow-hidden flex items-center cursor-pointer">
+              <img
+                src={logoImage}
+                alt="Rate My Apartment"
+                className="h-[90px] w-auto -my-5 dark:brightness-0 dark:invert"
+              />
+            </div>
           </Link>
-          <p className="text-xs text-gray-500 mt-1">Admin Dashboard</p>
+          <p className="text-xs text-gray-500 mt-2">Admin Dashboard</p>
         </div>
 
         <nav className="flex-1 p-4">
@@ -54,10 +59,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <li key={item.href}>
                   <Link href={item.href}>
                     <a
-                      className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors ${
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
                         isActive
-                          ? "bg-[#B45309] text-white"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          ? "bg-gradient-to-r from-[#ebba48] to-[#ebba48] text-white shadow-lg shadow-amber-500/25"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:shadow-md"
                       }`}
                     >
                       <div className="flex items-center gap-3">

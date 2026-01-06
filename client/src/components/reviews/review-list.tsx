@@ -26,7 +26,7 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card liquid>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg font-serif">Reviews</CardTitle>
           <Skeleton className="h-10 w-32" />
@@ -42,7 +42,7 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
 
   if (error) {
     return (
-      <Card>
+      <Card liquid>
         <CardContent className="py-8 text-center">
           <p className="text-red-500">Failed to load reviews</p>
         </CardContent>
@@ -55,7 +55,7 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
 
   if (reviews.length === 0) {
     return (
-      <Card>
+      <Card liquid>
         <CardHeader>
           <CardTitle className="text-lg font-serif">Reviews</CardTitle>
         </CardHeader>
@@ -66,13 +66,13 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
           </p>
           {isAuthenticated ? (
             <Link href={`/building/${buildingId}/review`}>
-              <Button className="bg-[#B45309] hover:bg-[#92400E] text-white">
+              <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white">
                 Write a Review
               </Button>
             </Link>
           ) : (
             <Link href="/login">
-              <Button className="bg-[#B45309] hover:bg-[#92400E] text-white">
+              <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white">
                 Sign in to Review
               </Button>
             </Link>
@@ -83,7 +83,7 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
   }
 
   return (
-    <Card>
+    <Card liquid>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-serif">
           Reviews ({pagination?.total ?? reviews.length})

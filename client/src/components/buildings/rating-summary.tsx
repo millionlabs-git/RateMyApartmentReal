@@ -18,9 +18,9 @@ function StarRating({ rating }: { rating: number }) {
           key={star}
           className={`h-6 w-6 ${
             star <= rating
-              ? "fill-[#B45309] text-[#B45309]"
+              ? "fill-[#ebba48] text-[#ebba48]"
               : star - 0.5 <= rating
-              ? "fill-[#B45309]/50 text-[#B45309]"
+              ? "fill-[#ebba48]/50 text-[#ebba48]"
               : "text-gray-300"
           }`}
         />
@@ -36,7 +36,7 @@ export function RatingSummary({
   isAuthenticated,
 }: RatingSummaryProps) {
   return (
-    <Card>
+    <Card liquid>
       <CardContent className="p-6">
         <div className="text-center space-y-4">
           {averageRating !== null ? (
@@ -67,14 +67,14 @@ export function RatingSummary({
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             {isAuthenticated ? (
               <Link href={`/building/${buildingId}/review`}>
-                <Button className="w-full bg-[#B45309] hover:bg-[#92400E] text-white">
+                <Button className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white">
                   Write a Review
                 </Button>
               </Link>
             ) : (
               <div className="space-y-2">
                 <Link href="/login">
-                  <Button className="w-full bg-[#B45309] hover:bg-[#92400E] text-white">
+                  <Button className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white">
                     Sign in to Review
                   </Button>
                 </Link>

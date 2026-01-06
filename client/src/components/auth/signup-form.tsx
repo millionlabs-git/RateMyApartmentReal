@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
@@ -33,6 +33,7 @@ type SignupFormValues = z.infer<typeof signupFormSchema>;
 export function SignupForm() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
@@ -49,7 +50,9 @@ export function SignupForm() {
       const res = await apiRequest("POST", "/api/auth/signup", data);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      // Immediately update the auth cache with the new user data
+      queryClient.setQueryData(["/api/auth/me"], response);
       toast({
         title: "Account created",
         description: "Welcome to Rate My Apartment!",
@@ -154,7 +157,7 @@ export function SignupForm() {
                   I agree to the{" "}
                   <a
                     href="/terms"
-                    className="text-[#B45309] hover:underline"
+                    className="text-[#ebba48] hover:underline"
                     target="_blank"
                   >
                     Terms of Service
@@ -162,7 +165,7 @@ export function SignupForm() {
                   and{" "}
                   <a
                     href="/privacy"
-                    className="text-[#B45309] hover:underline"
+                    className="text-[#ebba48] hover:underline"
                     target="_blank"
                   >
                     Privacy Policy
@@ -176,7 +179,7 @@ export function SignupForm() {
 
         <Button
           type="submit"
-          className="w-full bg-[#B45309] hover:bg-[#92400E] text-white"
+          className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
           disabled={signupMutation.isPending}
         >
           {signupMutation.isPending ? "Creating account..." : "Create Account"}

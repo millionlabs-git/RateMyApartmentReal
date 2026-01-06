@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 import {
   Form,
   FormControl,
@@ -79,10 +80,20 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
             <FormItem>
               <FormLabel>Street Address *</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="e.g., 225 West 86th Street"
+                <AddressAutocomplete
+                  value={field.value}
+                  onChange={field.onChange}
+                  onPlaceSelect={(details) => {
+                    field.onChange(details.address);
+                    if (details.zip && isValidNYCZip(details.zip)) {
+                      form.setValue("zip", details.zip);
+                    }
+                    if (details.neighborhood && NYC_NEIGHBORHOODS.includes(details.neighborhood)) {
+                      form.setValue("neighborhood", details.neighborhood);
+                    }
+                  }}
+                  placeholder="Start typing an address..."
                   className="bg-white dark:bg-gray-800 border-[#E7E5E4]"
-                  {...field}
                 />
               </FormControl>
               <FormMessage />

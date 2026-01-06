@@ -45,8 +45,9 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
       const res = await apiRequest("POST", "/api/auth/login", data);
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+    onSuccess: (response) => {
+      // Immediately update the auth cache with the logged-in user data
+      queryClient.setQueryData(["/api/auth/me"], response);
       toast({
         title: "Welcome back!",
         description: "You have been logged in successfully.",
@@ -102,7 +103,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                   <button
                     type="button"
                     onClick={onForgotPassword}
-                    className="text-sm text-[#B45309] hover:underline"
+                    className="text-sm text-[#ebba48] hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -123,7 +124,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
 
         <Button
           type="submit"
-          className="w-full bg-[#B45309] hover:bg-[#92400E] text-white"
+          className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
           disabled={loginMutation.isPending}
         >
           {loginMutation.isPending ? "Signing in..." : "Sign In"}

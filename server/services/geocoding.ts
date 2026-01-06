@@ -4,22 +4,22 @@ interface GeocodeResult {
   formattedAddress: string;
 }
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 export async function geocodeAddress(
   address: string,
   city: string,
   zip: string
 ): Promise<GeocodeResult | null> {
-  if (!GOOGLE_MAPS_API_KEY) {
-    console.warn("GOOGLE_MAPS_API_KEY not set, skipping geocoding");
+  if (!GOOGLE_API_KEY) {
+    console.warn("GOOGLE_API_KEY not set, skipping geocoding");
     return null;
   }
 
   try {
     const fullAddress = `${address}, ${city}, NY ${zip}`;
     const encodedAddress = encodeURIComponent(fullAddress);
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${GOOGLE_MAPS_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${GOOGLE_API_KEY}`;
 
     const response = await fetch(url);
     const data = await response.json();
@@ -46,5 +46,5 @@ export async function geocodeAddress(
 }
 
 export function isGeocodingEnabled(): boolean {
-  return !!GOOGLE_MAPS_API_KEY;
+  return !!GOOGLE_API_KEY;
 }

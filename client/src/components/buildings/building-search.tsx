@@ -24,16 +24,22 @@ export function BuildingSearch({ initialValue = "", variant = "default" }: Build
 
   if (variant === "hero") {
     return (
-      <form onSubmit={handleSubmit} className="w-full max-w-2xl">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input
+      <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
+        <div className="flex items-center gap-3 p-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] focus-within:ring-2 focus-within:ring-[#ebba48]/50 focus-within:border-[#ebba48]/50 transition-all">
+          <Search className="ml-4 h-5 w-5 text-white/60 flex-shrink-0" />
+          <input
             type="text"
             placeholder="Search by building name or address..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-white/20 rounded-xl shadow-lg focus:ring-2 focus:ring-[#B45309]"
+            className="flex-1 py-3 text-lg text-white placeholder:text-white/50 bg-transparent border-none focus:outline-none"
           />
+          <Button
+            type="submit"
+            className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 py-3 rounded-xl font-medium transition-all flex-shrink-0"
+          >
+            Search
+          </Button>
         </div>
       </form>
     );
@@ -51,7 +57,7 @@ export function BuildingSearch({ initialValue = "", variant = "default" }: Build
           className="pl-10 bg-white dark:bg-gray-800 border-[#E7E5E4]"
         />
       </div>
-      <Button type="submit" className="bg-[#B45309] hover:bg-[#92400E] text-white">
+      <Button type="submit" className="bg-[#ebba48] hover:bg-[#C49A3C] text-white">
         Search
       </Button>
     </form>

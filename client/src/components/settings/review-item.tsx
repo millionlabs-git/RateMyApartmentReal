@@ -50,7 +50,7 @@ export function ReviewItem({ review }: ReviewItemProps) {
     <div className="flex items-center justify-between py-4 border-b border-gray-200 last:border-0">
       <div className="flex flex-col gap-1">
         <Link href={`/building/${review.buildingId}`}>
-          <span className="font-medium text-[#1C1917] dark:text-white hover:text-[#B45309] cursor-pointer">
+          <span className="font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] cursor-pointer">
             {review.buildingName}
           </span>
         </Link>

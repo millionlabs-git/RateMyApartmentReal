@@ -128,7 +128,7 @@ export default function AdminReviews() {
             key={star}
             className={`h-4 w-4 ${
               star <= rating
-                ? "fill-[#B45309] text-[#B45309]"
+                ? "fill-[#ebba48] text-[#ebba48]"
                 : "text-gray-300"
             }`}
           />

@@ -110,6 +110,26 @@ router.patch("/reviews/:id/status", async (req: Request, res: Response) => {
   }
 });
 
+// Get all buildings with pagination and filters
+router.get("/buildings", async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const search = (req.query.search as string) || "";
+    const status = (req.query.status as string) || "all";
+
+    const { buildings, total } = await storage.getAllBuildingsAdmin(search, status, page, limit);
+
+    return res.json({
+      data: buildings,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    console.error("Get all buildings error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Get pending buildings
 router.get("/buildings/pending", async (req: Request, res: Response) => {
   try {
@@ -124,6 +144,50 @@ router.get("/buildings/pending", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Get pending buildings error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Get single building for editing
+router.get("/buildings/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const building = await storage.getBuilding(id);
+
+    if (!building) {
+      return res.status(404).json({ message: "Building not found" });
+    }
+
+    return res.json({ data: building });
+  } catch (error) {
+    console.error("Get building error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Update building data
+router.put("/buildings/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, address, zip, neighborhood, landlord, buildingType } = req.body;
+
+    const building = await storage.getBuilding(id);
+    if (!building) {
+      return res.status(404).json({ message: "Building not found" });
+    }
+
+    const updatedBuilding = await storage.updateBuilding(id, {
+      name: name ?? building.name,
+      address: address ?? building.address,
+      zip: zip ?? building.zip,
+      neighborhood: neighborhood !== undefined ? neighborhood : building.neighborhood,
+      landlord: landlord !== undefined ? landlord : building.landlord,
+      buildingType: buildingType !== undefined ? buildingType : building.buildingType,
+    });
+
+    return res.json({ data: updatedBuilding, message: "Building updated successfully" });
+  } catch (error) {
+    console.error("Update building error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

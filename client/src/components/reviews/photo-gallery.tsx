@@ -60,7 +60,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           <button
             key={photo.id}
             onClick={() => openLightbox(index)}
-            className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#B45309] focus:ring-offset-2 hover:opacity-90 transition-opacity"
+            className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#ebba48] focus:ring-offset-2 hover:opacity-90 transition-opacity"
           >
             <img
               src={photo.imageUrl}

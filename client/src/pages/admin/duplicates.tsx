@@ -103,7 +103,7 @@ export default function AdminDuplicates() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <GitMerge className="h-5 w-5 text-[#B45309]" />
+                      <GitMerge className="h-5 w-5 text-[#ebba48]" />
                       <CardTitle className="text-base font-medium">
                         Potential Duplicate Detected
                       </CardTitle>

@@ -108,7 +108,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalP
 
               <Button
                 type="submit"
-                className="w-full bg-[#B45309] hover:bg-[#92400E] text-white"
+                className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
                 disabled={forgotPasswordMutation.isPending}
               >
                 {forgotPasswordMutation.isPending ? "Sending..." : "Send Reset Link"}

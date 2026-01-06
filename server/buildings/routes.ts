@@ -5,7 +5,7 @@ import { fromZodError } from "zod-validation-error";
 import { storage } from "../storage";
 import { type User } from "@shared/schema";
 import { geocodeAddress, isGeocodingEnabled } from "../services/geocoding";
-import { findPotentialDuplicates } from "../services/duplicate-detection";
+import { findExactMatch, findAddressMatch, findPotentialDuplicates } from "../services/duplicate-detection";
 
 const router = Router();
 
@@ -245,10 +245,59 @@ router.post("/validate-address", async (req: Request, res: Response) => {
 router.post("/", requireAuth, async (req: Request, res: Response) => {
   try {
     const validatedData = createBuildingSchema.parse(req.body);
-    const skipDuplicateCheck = req.body.skipDuplicateCheck === true;
+    const forceSubmit = req.body.forceSubmit === true;
+
+    // Track matched building for duplicate queue
+    let matchedBuildingId: string | null = null;
+
+    // Check for duplicates FIRST, before geocoding
+    const exactMatch = await findExactMatch(
+      validatedData.address,
+      validatedData.name
+    );
+
+    if (exactMatch) {
+      if (!forceSubmit) {
+        return res.status(409).json({
+          message: "This building already exists",
+          exactMatch: true,
+          existingBuilding: {
+            id: exactMatch.building.id,
+            name: exactMatch.building.name,
+            address: exactMatch.building.address,
+            neighborhood: exactMatch.building.neighborhood,
+            landlord: exactMatch.building.landlord,
+            buildingType: exactMatch.building.buildingType,
+          },
+        });
+      }
+      matchedBuildingId = exactMatch.building.id;
+    }
+
+    // Check for address-only matches (same address, different name)
+    if (!matchedBuildingId) {
+      const addressMatch = await findAddressMatch(validatedData.address);
+
+      if (addressMatch) {
+        if (!forceSubmit) {
+          return res.status(409).json({
+            message: "A building at this address already exists",
+            addressMatch: true,
+            existingBuilding: {
+              id: addressMatch.building.id,
+              name: addressMatch.building.name,
+              address: addressMatch.building.address,
+              neighborhood: addressMatch.building.neighborhood,
+              landlord: addressMatch.building.landlord,
+              buildingType: addressMatch.building.buildingType,
+            },
+          });
+        }
+        matchedBuildingId = addressMatch.building.id;
+      }
+    }
 
     let geocodeResult = null;
-    let duplicates: { id: string; name: string; address: string }[] = [];
 
     // Try to geocode the address
     if (isGeocodingEnabled()) {
@@ -265,27 +314,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       }
     }
 
-    // Check for duplicates unless explicitly skipped
-    if (!skipDuplicateCheck) {
-      const potentialDuplicates = await findPotentialDuplicates(
-        geocodeResult?.lat ?? null,
-        geocodeResult?.lng ?? null,
-        validatedData.address,
-        validatedData.name
-      );
-
-      if (potentialDuplicates.length > 0) {
-        return res.status(409).json({
-          message: "A similar building may already exist",
-          duplicates: potentialDuplicates.map((d) => ({
-            id: d.building.id,
-            name: d.building.name,
-            address: d.building.address,
-          })),
-        });
-      }
-    }
-
+    // Create the building
     const building = await storage.createBuilding({
       name: validatedData.name,
       address: validatedData.address,
@@ -298,6 +327,16 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       geocodeLng: geocodeResult?.lng ?? null,
       status: "pending",
     });
+
+    // If user force-submitted a duplicate, add to duplicate queue for admin review
+    if (forceSubmit && matchedBuildingId) {
+      await storage.createDuplicateQueueEntry(
+        building.id,
+        matchedBuildingId,
+        100 // High score since it's a known address match
+      );
+      console.log(`[Duplicate Queue] Added pending duplicate: ${building.id} <-> ${matchedBuildingId}`);
+    }
 
     return res.status(201).json({ data: building });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
+import logoImage from "@assets/rate_my_apartment_horizontal_full_(1)_1767106423750.png";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -11,25 +12,23 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
-        <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-          <Skeleton className="h-full" />
-        </div>
-        <div className="flex-1 p-8">
-          <Skeleton className="h-10 w-48 mb-4" />
-          <Skeleton className="h-6 w-64 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
+      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-amber-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-16 overflow-hidden flex items-center justify-center mb-6">
+            <img
+              src={logoImage}
+              alt="Rate My Apartment"
+              className="h-[140px] w-auto -my-8 dark:brightness-0 dark:invert animate-pulse"
+            />
           </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Loading admin dashboard...</p>
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return <Redirect to="/auth" />;
+    return <Redirect to="/" />;
   }
 
   if (user.role !== "admin") {

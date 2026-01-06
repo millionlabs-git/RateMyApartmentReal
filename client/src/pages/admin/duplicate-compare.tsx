@@ -324,7 +324,7 @@ export default function DuplicateCompare() {
           Not Duplicates (Dismiss)
         </Button>
         <Button
-          className="flex-1 bg-[#B45309] hover:bg-[#92400E]"
+          className="flex-1 bg-[#ebba48] hover:bg-[#C49A3C]"
           onClick={() => {
             // Default to building with more reviews
             const defaultMaster =
@@ -360,7 +360,7 @@ export default function DuplicateCompare() {
                 <div
                   className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer ${
                     selectedMaster === pair.building1.id
-                      ? "border-[#B45309] bg-amber-50 dark:bg-amber-900/20"
+                      ? "border-[#ebba48] bg-amber-50 dark:bg-amber-900/20"
                       : "border-gray-200 dark:border-gray-700"
                   }`}
                   onClick={() => setSelectedMaster(pair.building1.id)}
@@ -386,7 +386,7 @@ export default function DuplicateCompare() {
                 <div
                   className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer ${
                     selectedMaster === pair.building2.id
-                      ? "border-[#B45309] bg-amber-50 dark:bg-amber-900/20"
+                      ? "border-[#ebba48] bg-amber-50 dark:bg-amber-900/20"
                       : "border-gray-200 dark:border-gray-700"
                   }`}
                   onClick={() => setSelectedMaster(pair.building2.id)}
@@ -430,7 +430,7 @@ export default function DuplicateCompare() {
               Cancel
             </Button>
             <Button
-              className="bg-[#B45309] hover:bg-[#92400E]"
+              className="bg-[#ebba48] hover:bg-[#C49A3C]"
               onClick={handleMerge}
               disabled={!selectedMaster || mergeMutation.isPending}
             >

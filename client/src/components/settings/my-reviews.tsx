@@ -62,7 +62,7 @@ export function MyReviews() {
           You haven't submitted any reviews yet
         </p>
         <Link href="/">
-          <Button className="bg-[#B45309] hover:bg-[#92400E] text-white">
+          <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white">
             <Search className="mr-2 h-4 w-4" />
             Browse Buildings
           </Button>

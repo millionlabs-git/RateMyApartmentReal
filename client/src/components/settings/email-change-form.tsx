@@ -102,7 +102,7 @@ export function EmailChangeForm({ currentEmail }: EmailChangeFormProps) {
 
           <Button
             type="submit"
-            className="bg-[#B45309] hover:bg-[#92400E] text-white"
+            className="bg-[#ebba48] hover:bg-[#C49A3C] text-white"
             disabled={changeMutation.isPending}
           >
             {changeMutation.isPending ? "Sending..." : "Send Verification Email"}

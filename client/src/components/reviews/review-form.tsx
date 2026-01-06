@@ -251,7 +251,7 @@ export function ReviewForm({ onSubmit, isSubmitting }: ReviewFormProps) {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#B45309] hover:bg-[#92400E] text-white py-6 text-lg"
+        className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white py-6 text-lg"
       >
         {isSubmitting ? "Submitting..." : "Submit Review"}
       </Button>

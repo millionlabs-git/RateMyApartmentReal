@@ -148,6 +148,73 @@ export interface PotentialDuplicate {
   similarity?: number;
 }
 
+export interface ExactMatch {
+  building: Building;
+  isExact: true;
+}
+
+// Normalize building name for comparison
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Check for exact match (normalized address AND building name identical)
+export async function findExactMatch(
+  address: string,
+  name: string
+): Promise<ExactMatch | null> {
+  const allBuildings = await storage.getAllApprovedBuildings();
+  const normalizedInputAddress = normalizeAddress(address);
+  const normalizedInputName = normalizeName(name);
+
+  for (const building of allBuildings) {
+    const normalizedBuildingAddress = normalizeAddress(building.address);
+    const normalizedBuildingName = normalizeName(building.name);
+
+    if (
+      normalizedInputAddress === normalizedBuildingAddress &&
+      normalizedInputName === normalizedBuildingName
+    ) {
+      return {
+        building,
+        isExact: true,
+      };
+    }
+  }
+
+  return null;
+}
+
+export interface AddressMatch {
+  building: Building;
+  isAddressOnly: true;
+}
+
+// Check for address-only match (same address, different name)
+export async function findAddressMatch(
+  address: string
+): Promise<AddressMatch | null> {
+  const allBuildings = await storage.getAllApprovedBuildings();
+  const normalizedInputAddress = normalizeAddress(address);
+
+  for (const building of allBuildings) {
+    const normalizedBuildingAddress = normalizeAddress(building.address);
+
+    if (normalizedInputAddress === normalizedBuildingAddress) {
+      return {
+        building,
+        isAddressOnly: true,
+      };
+    }
+  }
+
+  return null;
+}
+
 export async function findPotentialDuplicates(
   lat: number | null,
   lng: number | null,

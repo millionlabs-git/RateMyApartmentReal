@@ -1,49 +1,26 @@
 import { type User, type InsertUser, type PasswordResetToken, type EmailVerificationToken, type Building, type InsertBuilding, type Review, type InsertReview, type ReviewWithBuilding, type ReviewWithUser, type ReviewPhoto, type DuplicateQueueEntry, type AuditLogEntry } from "@shared/schema";
 import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
+import { DatabaseStorage } from "./db-storage";
 
-export interface CategoryRatings {
-  noise: number | null;
-  cleanliness: number | null;
-  maintenance: number | null;
-  safety: number | null;
-  pests: number | null;
-}
+// Re-export types from storage-types
+export type {
+  CategoryRatings,
+  FloorInsight,
+  BuildingWithStats,
+  AdminStats,
+  ReviewWithDetails,
+  DuplicatePairWithBuildings,
+} from "./storage-types";
 
-export interface FloorInsight {
-  floor: number;
-  avgRating: number;
-  reviewCount: number;
-}
-
-export interface BuildingWithStats extends Building {
-  reviewCount: number;
-  averageRating: number | null;
-  categoryRatings: CategoryRatings;
-  floorInsights: FloorInsight[];
-}
-
-export interface AdminStats {
-  totalUsers: number;
-  totalBuildings: number;
-  totalReviews: number;
-  pendingBuildings: number;
-  pendingReviews: number;
-}
-
-export interface ReviewWithDetails extends Review {
-  buildingName: string;
-  userEmail: string;
-}
-
-export interface DuplicatePairWithBuildings {
-  id: string;
-  building1: Building & { reviewCount: number; averageRating: number | null };
-  building2: Building & { reviewCount: number; averageRating: number | null };
-  similarityScore: number;
-  status: "pending" | "merged" | "dismissed";
-  createdAt: Date;
-}
+import type {
+  CategoryRatings,
+  FloorInsight,
+  BuildingWithStats,
+  AdminStats,
+  ReviewWithDetails,
+  DuplicatePairWithBuildings,
+} from "./storage-types";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -83,6 +60,8 @@ export interface IStorage {
   updateReviewStatus(reviewId: string, status: "approved" | "denied"): Promise<void>;
   bulkUpdateReviewStatus(reviewIds: string[], status: "approved" | "denied"): Promise<void>;
   getPendingBuildings(page: number, limit: number): Promise<{ buildings: Building[]; total: number }>;
+  getAllBuildingsAdmin(search: string, status: string, page: number, limit: number): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }>;
+  updateBuilding(id: string, data: Partial<Pick<Building, "name" | "address" | "zip" | "neighborhood" | "landlord" | "buildingType">>): Promise<Building>;
   updateBuildingStatus(buildingId: string, status: "approved" | "denied"): Promise<void>;
   bulkUpdateBuildingStatus(buildingIds: string[], status: "approved" | "denied"): Promise<void>;
 
@@ -547,6 +526,49 @@ export class MemStorage implements IStorage {
     return { buildings, total };
   }
 
+  async getAllBuildingsAdmin(search: string, status: string, page: number, limit: number): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }> {
+    const searchLower = search.toLowerCase();
+
+    let allBuildings = Array.from(this.buildings.values());
+
+    // Filter by status if not "all"
+    if (status !== "all") {
+      allBuildings = allBuildings.filter(b => b.status === status);
+    }
+
+    // Filter by search
+    if (searchLower) {
+      allBuildings = allBuildings.filter(b =>
+        b.name.toLowerCase().includes(searchLower) ||
+        b.address.toLowerCase().includes(searchLower)
+      );
+    }
+
+    allBuildings.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const total = allBuildings.length;
+    const offset = (page - 1) * limit;
+    const paginatedBuildings = allBuildings.slice(offset, offset + limit);
+
+    const buildingsWithStats = paginatedBuildings.map(building => {
+      const stats = this.getBuildingStats(building.id);
+      return { ...building, ...stats };
+    });
+
+    return { buildings: buildingsWithStats, total };
+  }
+
+  async updateBuilding(id: string, data: Partial<Pick<Building, "name" | "address" | "zip" | "neighborhood" | "landlord" | "buildingType">>): Promise<Building> {
+    const building = this.buildings.get(id);
+    if (!building) {
+      throw new Error("Building not found");
+    }
+
+    const updatedBuilding = { ...building, ...data };
+    this.buildings.set(id, updatedBuilding);
+    return updatedBuilding;
+  }
+
   async updateBuildingStatus(buildingId: string, status: "approved" | "denied"): Promise<void> {
     const building = this.buildings.get(buildingId);
     if (building) {
@@ -726,9 +748,20 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use DatabaseStorage if DATABASE_URL is set, otherwise fall back to MemStorage
+let storage: IStorage;
 
-// Seed sample buildings for development
+if (process.env.DATABASE_URL) {
+  storage = new DatabaseStorage();
+  console.log("Using PostgreSQL database storage");
+} else {
+  storage = new MemStorage();
+  console.log("Using in-memory storage (data will be lost on restart)");
+}
+
+export { storage };
+
+// Seed sample buildings for development (only for MemStorage)
 const sampleBuildings: InsertBuilding[] = [
   { name: "The Belnord", address: "225 West 86th Street", city: "New York", zip: "10024", neighborhood: "Upper West Side", buildingType: "Pre-war", landlord: "HFZ Capital Group", status: "approved" },
   { name: "The Ansonia", address: "2109 Broadway", city: "New York", zip: "10023", neighborhood: "Upper West Side", buildingType: "Pre-war", landlord: "Ansonia Residents LLC", status: "approved" },
@@ -747,24 +780,27 @@ const sampleBuildings: InsertBuilding[] = [
   { name: "Essex Crossing", address: "180 Broome Street", city: "New York", zip: "10002", neighborhood: "Lower East Side", buildingType: "New Construction", landlord: "Delancey Street Associates", status: "approved" },
 ];
 
-(async () => {
-  // Seed sample buildings
-  for (const building of sampleBuildings) {
-    await storage.createBuilding(building);
-  }
+// Only seed data for MemStorage (development without database)
+if (!process.env.DATABASE_URL && storage instanceof MemStorage) {
+  (async () => {
+    // Seed sample buildings
+    for (const building of sampleBuildings) {
+      await storage.createBuilding(building);
+    }
 
-  // Seed admin user for development
-  const adminPasswordHash = await bcrypt.hash("admin123", 10);
-  const adminId = randomUUID();
-  const adminUser: User = {
-    id: adminId,
-    email: "admin@ratemyapartment.com",
-    passwordHash: adminPasswordHash,
-    role: "admin",
-    status: "active",
-    emailNotifications: true,
-    createdAt: new Date(),
-  };
-  storage.seedUser(adminUser);
-  console.log("Seeded admin user: admin@ratemyapartment.com / admin123");
-})();
+    // Seed admin user for development
+    const adminPasswordHash = await bcrypt.hash("admin123", 10);
+    const adminId = randomUUID();
+    const adminUser: User = {
+      id: adminId,
+      email: "admin@ratemyapartment.com",
+      passwordHash: adminPasswordHash,
+      role: "admin",
+      status: "active",
+      emailNotifications: true,
+      createdAt: new Date(),
+    };
+    storage.seedUser(adminUser);
+    console.log("Seeded admin user: admin@ratemyapartment.com / admin123");
+  })();
+}
