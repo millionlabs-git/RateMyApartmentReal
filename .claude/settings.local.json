@@ -13,7 +13,8 @@
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
       "Bash(sqlite3:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(PGPASSWORD='npg_MfKg9IhW7Xdw' psql:*)"
     ]
   }
 }
