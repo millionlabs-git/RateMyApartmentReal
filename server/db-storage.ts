@@ -316,14 +316,32 @@ export class DatabaseStorage implements IStorage {
     const reviewsWithDetails: ReviewWithDetails[] = await Promise.all(pendingReviews.map(async (review: typeof pendingReviews[0]) => {
       const [building] = await this.db.select().from(buildings).where(eq(buildings.id, review.buildingId));
       const [user] = await this.db.select().from(users).where(eq(users.id, review.userId));
+      const photos = await this.db.select().from(reviewPhotos).where(eq(reviewPhotos.reviewId, review.id));
       return {
         ...review,
         buildingName: building?.name ?? "Unknown Building",
         userEmail: user?.email ?? "Unknown User",
+        photos,
       };
     }));
 
     return { reviews: reviewsWithDetails, total };
+  }
+
+  async getReviewWithDetails(reviewId: string): Promise<ReviewWithDetails | undefined> {
+    const [review] = await this.db.select().from(reviews).where(eq(reviews.id, reviewId));
+    if (!review) return undefined;
+
+    const [building] = await this.db.select().from(buildings).where(eq(buildings.id, review.buildingId));
+    const [user] = await this.db.select().from(users).where(eq(users.id, review.userId));
+    const photos = await this.db.select().from(reviewPhotos).where(eq(reviewPhotos.reviewId, review.id));
+
+    return {
+      ...review,
+      buildingName: building?.name ?? "Unknown Building",
+      userEmail: user?.email ?? "Unknown User",
+      photos,
+    };
   }
 
   async updateReviewStatus(reviewId: string, status: "approved" | "denied"): Promise<void> {

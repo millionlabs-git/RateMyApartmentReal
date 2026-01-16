@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -32,6 +34,8 @@ type SignupFormValues = z.infer<typeof signupFormSchema>;
 
 export function SignupForm() {
   const [, setLocation] = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -109,12 +113,25 @@ export function SignupForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Create a password"
-                  autoComplete="new-password"
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <PasswordStrength password={password} />
               <FormMessage />
@@ -129,12 +146,25 @@ export function SignupForm() {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Confirm your password"
-                  autoComplete="new-password"
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -156,17 +186,19 @@ export function SignupForm() {
                 <FormLabel className="text-sm font-normal">
                   I agree to the{" "}
                   <a
-                    href="/terms"
+                    href="/terms-and-conditions.pdf"
                     className="text-[#ebba48] hover:underline"
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Terms of Service
                   </a>{" "}
                   and{" "}
                   <a
-                    href="/privacy"
+                    href="/privacy-policy.pdf"
                     className="text-[#ebba48] hover:underline"
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Privacy Policy
                   </a>

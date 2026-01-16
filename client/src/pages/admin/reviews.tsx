@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, X, Star, Building2 } from "lucide-react";
+import { Check, X, Star, Building2, Image } from "lucide-react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+
+interface ReviewPhoto {
+  id: string;
+  reviewId: string;
+  imageUrl: string;
+  createdAt: string;
+}
 
 interface Review {
   id: string;
@@ -19,6 +30,7 @@ interface Review {
   floorNumber: number;
   isAnonymous: boolean;
   createdAt: string;
+  photos: ReviewPhoto[];
 }
 
 interface ReviewsResponse {
@@ -34,6 +46,7 @@ interface ReviewsResponse {
 export default function AdminReviews() {
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [enlargedPhoto, setEnlargedPhoto] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -241,6 +254,25 @@ export default function AdminReviews() {
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
                     {review.reviewText}
                   </p>
+                  {review.photos && review.photos.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+                        <Image className="h-4 w-4" />
+                        <span>{review.photos.length} photo{review.photos.length > 1 ? 's' : ''} attached</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {review.photos.map((photo) => (
+                          <img
+                            key={photo.id}
+                            src={photo.imageUrl}
+                            alt="Review photo"
+                            className="h-20 w-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-gray-200 dark:border-gray-700"
+                            onClick={() => setEnlargedPhoto(photo.imageUrl)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -303,6 +335,19 @@ export default function AdminReviews() {
           )}
         </>
       )}
+
+      {/* Enlarged Photo Dialog */}
+      <Dialog open={!!enlargedPhoto} onOpenChange={() => setEnlargedPhoto(null)}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden">
+          {enlargedPhoto && (
+            <img
+              src={enlargedPhoto}
+              alt="Enlarged review photo"
+              className="w-full h-auto"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

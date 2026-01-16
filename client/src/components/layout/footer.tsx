@@ -38,22 +38,24 @@ export function Footer() {
               Contact
             </a>
           </Link>
-          <Link href="/privacy">
-            <a
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
-              data-testid="link-privacy"
-            >
-              Privacy
-            </a>
-          </Link>
-          <Link href="/terms">
-            <a
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
-              data-testid="link-terms"
-            >
-              Terms
-            </a>
-          </Link>
+          <a
+            href="/privacy-policy.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
+            data-testid="link-privacy"
+          >
+            Privacy
+          </a>
+          <a
+            href="/terms-and-conditions.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
+            data-testid="link-terms"
+          >
+            Terms
+          </a>
         </div>
 
         <span className="text-[0.8125rem] text-[#A8A29E]" data-testid="text-copyright">

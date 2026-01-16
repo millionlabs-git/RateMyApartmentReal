@@ -1,4 +1,4 @@
-import type { Building, Review } from "@shared/schema";
+import type { Building, Review, ReviewPhoto } from "@shared/schema";
 
 export interface CategoryRatings {
   noise: number | null;
@@ -32,6 +32,7 @@ export interface AdminStats {
 export interface ReviewWithDetails extends Review {
   buildingName: string;
   userEmail: string;
+  photos: ReviewPhoto[];
 }
 
 export interface DuplicatePairWithBuildings {

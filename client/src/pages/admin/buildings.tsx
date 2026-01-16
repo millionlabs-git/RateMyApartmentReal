@@ -242,13 +242,15 @@ export default function AdminBuildings() {
             <span className="text-sm text-gray-400">
               {formatDate(building.createdAt)}
             </span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => handleEdit(building)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            {building.status !== "denied" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleEdit(building)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

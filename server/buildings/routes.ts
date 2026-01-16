@@ -154,6 +154,11 @@ router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => 
     const { id } = req.params;
     const user = req.user as User;
 
+    // Check if user is suspended
+    if (user.status === "suspended") {
+      return res.status(403).json({ message: "Your account has been suspended" });
+    }
+
     // Check if building exists
     const building = await storage.getBuilding(id);
     if (!building || building.status !== "approved") {
@@ -244,6 +249,13 @@ router.post("/validate-address", async (req: Request, res: Response) => {
 
 router.post("/", requireAuth, async (req: Request, res: Response) => {
   try {
+    const user = req.user as User;
+
+    // Check if user is suspended
+    if (user.status === "suspended") {
+      return res.status(403).json({ message: "Your account has been suspended" });
+    }
+
     const validatedData = createBuildingSchema.parse(req.body);
     const forceSubmit = req.body.forceSubmit === true;
 

@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { storage } from "../storage";
 import { type User } from "@shared/schema";
 import { detectAndQueueDuplicates } from "../services/duplicate-detection";
+import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../services/email";
 
 const router = Router();
 
@@ -96,13 +97,37 @@ router.get("/reviews/pending", async (req: Request, res: Response) => {
 router.patch("/reviews/:id/status", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
 
     if (!["approved", "denied"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
+    // Get review details before updating for email notification
+    const review = await storage.getReviewWithDetails(id);
+
     await storage.updateReviewStatus(id, status);
+
+    // Send email notification if we have review details
+    if (review) {
+      const building = await storage.getBuilding(review.buildingId);
+
+      if (status === "approved" && building) {
+        sendReviewApprovedEmail({
+          email: review.userEmail,
+          buildingName: building.name,
+          buildingAddress: building.address,
+          buildingId: building.id,
+        }).catch(err => console.error("Failed to send review approved email:", err));
+      } else if (status === "denied") {
+        sendReviewRejectedEmail({
+          email: review.userEmail,
+          buildingName: review.buildingName,
+          reason: reason,
+        }).catch(err => console.error("Failed to send review rejected email:", err));
+      }
+    }
+
     return res.json({ message: "Review status updated" });
   } catch (error) {
     console.error("Update review status error:", error);
@@ -176,6 +201,11 @@ router.put("/buildings/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Building not found" });
     }
 
+    // Prevent editing denied buildings
+    if (building.status === "denied") {
+      return res.status(400).json({ message: "Cannot edit denied buildings" });
+    }
+
     const updatedBuilding = await storage.updateBuilding(id, {
       name: name ?? building.name,
       address: address ?? building.address,
@@ -221,7 +251,7 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
 // Bulk approve/deny reviews
 router.post("/reviews/bulk-action", async (req: Request, res: Response) => {
   try {
-    const { ids, action } = req.body;
+    const { ids, action, reason } = req.body;
 
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ message: "No IDs provided" });
@@ -231,7 +261,35 @@ router.post("/reviews/bulk-action", async (req: Request, res: Response) => {
     }
 
     const status = action === "approve" ? "approved" : "denied";
+
+    // Get review details before updating for email notifications
+    const reviewDetails = await Promise.all(
+      ids.map(id => storage.getReviewWithDetails(id))
+    );
+
     await storage.bulkUpdateReviewStatus(ids, status);
+
+    // Send email notifications
+    for (const review of reviewDetails) {
+      if (!review) continue;
+
+      const building = await storage.getBuilding(review.buildingId);
+
+      if (status === "approved" && building) {
+        sendReviewApprovedEmail({
+          email: review.userEmail,
+          buildingName: building.name,
+          buildingAddress: building.address,
+          buildingId: building.id,
+        }).catch(err => console.error("Failed to send review approved email:", err));
+      } else if (status === "denied") {
+        sendReviewRejectedEmail({
+          email: review.userEmail,
+          buildingName: review.buildingName,
+          reason: reason,
+        }).catch(err => console.error("Failed to send review rejected email:", err));
+      }
+    }
 
     return res.json({ message: `${ids.length} reviews ${status}` });
   } catch (error) {

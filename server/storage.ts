@@ -57,6 +57,7 @@ export interface IStorage {
   getAllUsers(search: string, page: number, limit: number): Promise<{ users: User[]; total: number }>;
   updateUserStatus(userId: string, status: "active" | "suspended"): Promise<void>;
   getPendingReviews(page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }>;
+  getReviewWithDetails(reviewId: string): Promise<ReviewWithDetails | undefined>;
   updateReviewStatus(reviewId: string, status: "approved" | "denied"): Promise<void>;
   bulkUpdateReviewStatus(reviewIds: string[], status: "approved" | "denied"): Promise<void>;
   getPendingBuildings(page: number, limit: number): Promise<{ buildings: Building[]; total: number }>;
@@ -490,14 +491,32 @@ export class MemStorage implements IStorage {
     const reviewsWithDetails: ReviewWithDetails[] = paginatedReviews.map(review => {
       const building = this.buildings.get(review.buildingId);
       const user = this.users.get(review.userId);
+      const photos = Array.from(this.reviewPhotos.values()).filter(p => p.reviewId === review.id);
       return {
         ...review,
         buildingName: building?.name ?? "Unknown Building",
         userEmail: user?.email ?? "Unknown User",
+        photos,
       };
     });
 
     return { reviews: reviewsWithDetails, total };
+  }
+
+  async getReviewWithDetails(reviewId: string): Promise<ReviewWithDetails | undefined> {
+    const review = this.reviews.get(reviewId);
+    if (!review) return undefined;
+
+    const building = this.buildings.get(review.buildingId);
+    const user = this.users.get(review.userId);
+    const photos = Array.from(this.reviewPhotos.values()).filter(p => p.reviewId === review.id);
+
+    return {
+      ...review,
+      buildingName: building?.name ?? "Unknown Building",
+      userEmail: user?.email ?? "Unknown User",
+      photos,
+    };
   }
 
   async updateReviewStatus(reviewId: string, status: "approved" | "denied"): Promise<void> {
