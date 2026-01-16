@@ -278,7 +278,7 @@ export default function AddBuildingPage() {
               Our team will review it shortly.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex-col items-center gap-2 sm:flex-col">
+          <DialogFooter className="flex flex-col w-full gap-2 sm:flex-col">
             <Button
               onClick={handleCloseSuccess}
               className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
