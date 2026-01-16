@@ -9,6 +9,7 @@ import adminRoutes from "./admin/routes";
 import placesRoutes from "./places/routes";
 import { storage } from "./storage";
 import MemoryStore from "memorystore";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 const MemoryStoreSession = MemoryStore(session);
 
@@ -43,6 +44,9 @@ export async function registerRoutes(
   app.use("/api/buildings", buildingsRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/places", placesRoutes);
+  
+  // Register object storage routes for file uploads
+  registerObjectStorageRoutes(app);
 
   return httpServer;
 }
