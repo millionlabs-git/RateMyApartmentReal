@@ -147,6 +147,7 @@ const createReviewSchema = z.object({
   safetyRating: z.number().min(0).max(5).optional(),
   pestRating: z.number().min(0).max(5).optional(),
   isAnonymous: z.boolean().optional(),
+  photos: z.array(z.string()).max(5).optional(),
 });
 
 router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => {
@@ -181,6 +182,11 @@ router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => 
       isAnonymous: validatedData.isAnonymous ?? true,
       status: "pending",
     });
+
+    // Save photos if provided
+    if (validatedData.photos && validatedData.photos.length > 0) {
+      await storage.addReviewPhotos(review.id, validatedData.photos);
+    }
 
     return res.status(201).json({ data: review });
   } catch (error) {

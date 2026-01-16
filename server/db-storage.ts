@@ -256,6 +256,17 @@ export class DatabaseStorage implements IStorage {
     return newReview;
   }
 
+  async addReviewPhotos(reviewId: string, photoUrls: string[]): Promise<void> {
+    if (photoUrls.length === 0) return;
+    
+    const photoValues = photoUrls.map(imageUrl => ({
+      reviewId,
+      imageUrl,
+    }));
+    
+    await this.db.insert(reviewPhotos).values(photoValues);
+  }
+
   async updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void> {
     await this.db.update(users).set({ emailNotifications }).where(eq(users.id, userId));
   }

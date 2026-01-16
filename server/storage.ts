@@ -47,6 +47,7 @@ export interface IStorage {
   getReviewsByUserId(userId: string, page: number, limit: number): Promise<{ reviews: ReviewWithBuilding[]; total: number }>;
   getReviewsByBuildingId(buildingId: string, sort: "newest" | "highest" | "lowest", page: number, limit: number): Promise<{ reviews: ReviewWithUser[]; total: number }>;
   createReview(review: InsertReview): Promise<Review>;
+  addReviewPhotos(reviewId: string, photoUrls: string[]): Promise<void>;
 
   // User preferences and account management
   updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void>;
@@ -406,6 +407,19 @@ export class MemStorage implements IStorage {
     };
     this.reviews.set(id, newReview);
     return newReview;
+  }
+
+  async addReviewPhotos(reviewId: string, photoUrls: string[]): Promise<void> {
+    for (const imageUrl of photoUrls) {
+      const id = randomUUID();
+      const photo: ReviewPhoto = {
+        id,
+        reviewId,
+        imageUrl,
+        createdAt: new Date(),
+      };
+      this.reviewPhotos.set(id, photo);
+    }
   }
 
   async updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void> {
