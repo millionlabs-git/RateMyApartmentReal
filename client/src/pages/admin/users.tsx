@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, MoreVertical, UserCheck, UserX } from "lucide-react";
+import { Search, MoreVertical, UserCheck, UserX, KeyRound } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,6 +46,7 @@ export default function AdminUsers() {
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
 
   const { data, isLoading } = useQuery<UsersResponse>({
     queryKey: ["admin", "users", search, page],
@@ -82,6 +84,25 @@ export default function AdminUsers() {
     onError: () => {
       toast({
         title: "Failed to update user status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to send password reset email");
+    },
+    onSuccess: () => {
+      toast({ title: "Password reset email sent" });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to send password reset email",
         variant: "destructive",
       });
     },
@@ -174,31 +195,39 @@ export default function AdminUsers() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {user.status === "active" ? (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                updateStatusMutation.mutate({
-                                  userId: user.id,
-                                  status: "suspended",
-                                })
-                              }
-                              className="text-red-600"
-                            >
-                              <UserX className="h-4 w-4 mr-2" />
-                              Suspend User
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                updateStatusMutation.mutate({
-                                  userId: user.id,
-                                  status: "active",
-                                })
-                              }
-                            >
-                              <UserCheck className="h-4 w-4 mr-2" />
-                              Activate User
-                            </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => resetPasswordMutation.mutate(user.id)}
+                          >
+                            <KeyRound className="h-4 w-4 mr-2" />
+                            Send Password Reset
+                          </DropdownMenuItem>
+                          {currentUser?.id !== user.id && (
+                            user.status === "active" ? (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateStatusMutation.mutate({
+                                    userId: user.id,
+                                    status: "suspended",
+                                  })
+                                }
+                                className="text-red-600"
+                              >
+                                <UserX className="h-4 w-4 mr-2" />
+                                Suspend User
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateStatusMutation.mutate({
+                                    userId: user.id,
+                                    status: "active",
+                                  })
+                                }
+                              >
+                                <UserCheck className="h-4 w-4 mr-2" />
+                                Activate User
+                              </DropdownMenuItem>
+                            )
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>

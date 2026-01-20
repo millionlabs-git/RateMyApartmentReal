@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
+import crypto from "crypto";
 import { storage } from "../storage";
 import { type User } from "@shared/schema";
 import { detectAndQueueDuplicates } from "../services/duplicate-detection";
-import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../services/email";
+import { sendReviewApprovedEmail, sendReviewRejectedEmail, sendPasswordResetEmail } from "../services/email";
 
 const router = Router();
 
@@ -62,15 +63,51 @@ router.patch("/users/:id/status", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const currentUser = req.user as User;
 
     if (!["active", "suspended"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
+    }
+
+    // Prevent admins from suspending themselves
+    if (id === currentUser.id && status === "suspended") {
+      return res.status(400).json({ message: "You cannot suspend your own account" });
     }
 
     await storage.updateUserStatus(id, status);
     return res.json({ message: "User status updated" });
   } catch (error) {
     console.error("Update user status error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const TOKEN_EXPIRY_HOURS = 24;
+
+// Send password reset email for a user (admin-triggered)
+router.post("/users/:id/reset-password", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await storage.getUser(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    await storage.createPasswordResetToken(user.id, token, expiresAt);
+
+    const emailSent = await sendPasswordResetEmail({ email: user.email, token });
+
+    if (!emailSent) {
+      return res.status(500).json({ message: "Failed to send password reset email" });
+    }
+
+    return res.json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error("Admin reset password error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
