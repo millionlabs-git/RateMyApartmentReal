@@ -30,14 +30,6 @@ export function Footer() {
               About
             </a>
           </Link>
-          <Link href="/contact">
-            <a
-              className="text-[0.8125rem] text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white transition-colors"
-              data-testid="link-contact"
-            >
-              Contact
-            </a>
-          </Link>
           <a
             href="/privacy-policy.pdf"
             target="_blank"
