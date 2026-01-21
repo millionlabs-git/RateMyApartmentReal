@@ -291,7 +291,7 @@ export default function AddBuildingPage() {
                 setSuccessBuilding(null);
                 setFormKey(k => k + 1);
               }}
-              className="w-full"
+              className="w-full ml-[0px] mr-[0px]"
             >
               Add Another Building
             </Button>
