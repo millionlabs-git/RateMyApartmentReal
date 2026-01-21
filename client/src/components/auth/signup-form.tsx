@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -185,23 +185,19 @@ export function SignupForm() {
               <div className="space-y-1 leading-none">
                 <FormLabel className="text-sm font-normal">
                   I agree to the{" "}
-                  <a
-                    href="/terms-and-conditions.pdf"
+                  <Link
+                    href="/terms"
                     className="text-[#ebba48] hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
                   >
                     Terms of Service
-                  </a>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <a
-                    href="/privacy-policy.pdf"
+                  <Link
+                    href="/privacy"
                     className="text-[#ebba48] hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </FormLabel>
                 <FormMessage />
               </div>

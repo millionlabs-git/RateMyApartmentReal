@@ -19,6 +19,8 @@ import Building from "@/pages/building";
 import AddReview from "@/pages/add-review";
 import Forbidden from "@/pages/forbidden";
 import About from "@/pages/about";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminReviews from "@/pages/admin/reviews";
@@ -77,6 +79,8 @@ function Router() {
       <Route path="/verify-email/:token" component={VerifyEmail} />
       <Route path="/forbidden" component={Forbidden} />
       <Route path="/about" component={About} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route path="/admin">
         {() => (
           <AdminRoute>
