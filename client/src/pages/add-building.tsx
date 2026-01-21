@@ -278,7 +278,7 @@ export default function AddBuildingPage() {
               Our team will review it shortly.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col w-full gap-2 sm:flex-col">
+          <DialogFooter className="flex flex-col w-full gap-2 sm:flex-col sm:space-x-0">
             <Button
               onClick={handleCloseSuccess}
               className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
@@ -291,7 +291,7 @@ export default function AddBuildingPage() {
                 setSuccessBuilding(null);
                 setFormKey(k => k + 1);
               }}
-              className="w-full ml-[0px] mr-[0px]"
+              className="w-full"
             >
               Add Another Building
             </Button>
