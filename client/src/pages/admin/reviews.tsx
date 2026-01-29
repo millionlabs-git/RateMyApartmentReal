@@ -251,7 +251,7 @@ export default function AdminReviews() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  <p className="text-gray-700 dark:text-gray-300 mb-4 break-words overflow-hidden">
                     {review.reviewText}
                   </p>
                   {review.photos && review.photos.length > 0 && (

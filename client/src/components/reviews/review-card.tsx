@@ -74,7 +74,7 @@ export function ReviewCard({
             <p className="text-xs text-gray-500 mt-1">{formatDate(createdAt)}</p>
           </div>
         </div>
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed break-words overflow-hidden">
           {reviewText}
         </p>
         {photos.length > 0 && <PhotoGallery photos={photos} />}

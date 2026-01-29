@@ -12,7 +12,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       ref={ref}
       className={cn(
         liquid
-          ? "liquid-glass liquid-edge liquid-gradient rounded-2xl text-card-foreground"
+          ? "relative liquid-glass liquid-edge liquid-gradient rounded-2xl text-card-foreground"
           : "glass-card rounded-2xl text-card-foreground",
         className
       )}

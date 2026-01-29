@@ -862,7 +862,6 @@
 
 /* Refraction edge highlight */
 .liquid-edge {
-  position: relative;
 }
 
 .liquid-edge::after {

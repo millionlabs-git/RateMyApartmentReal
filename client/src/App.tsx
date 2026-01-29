@@ -21,6 +21,7 @@ import Forbidden from "@/pages/forbidden";
 import About from "@/pages/about";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import Contact from "@/pages/contact";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminReviews from "@/pages/admin/reviews";
@@ -81,6 +82,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/contact" component={Contact} />
       <Route path="/admin">
         {() => (
           <AdminRoute>
