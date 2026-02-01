@@ -122,13 +122,13 @@ export default function BuildingPage() {
 
         {/* Hero section with building info */}
         <div className="max-w-6xl mx-auto w-full mb-10">
-          <h1 className="font-serif text-4xl md:text-5xl text-white mb-3">
+          <h1 className="font-serif text-3xl md:text-5xl text-white mb-3 break-words">
             {building.name}
           </h1>
-          <div className="flex items-start gap-2 text-white/70 mb-4">
+          <div className="flex items-start gap-2 text-white/70 mb-4 min-w-0">
             <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-lg">{building.address}</p>
+            <div className="min-w-0">
+              <p className="text-lg break-words">{building.address}</p>
               <p>{building.city}, NY {building.zip}</p>
             </div>
           </div>
@@ -155,9 +155,9 @@ export default function BuildingPage() {
         </div>
 
         {/* Main content grid */}
-        <div className="flex-1 max-w-6xl w-full mx-auto">
+        <div className="flex-1 max-w-6xl w-full mx-auto min-w-0">
           <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
               <CategoryRatingsDisplay
                 categoryRatings={building.categoryRatings}
                 hasReviews={building.reviewCount > 0}

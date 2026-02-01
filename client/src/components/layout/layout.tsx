@@ -17,7 +17,7 @@ export function Layout({
   className = "",
 }: LayoutProps) {
   return (
-    <div className={`min-h-screen flex flex-col bg-[#FDFAF6] dark:bg-gray-900 ${showSkyline ? 'nyc-skyline-bg' : ''} ${className}`}>
+    <div className={`min-h-screen flex flex-col bg-[#FDFAF6] dark:bg-gray-900 overflow-x-hidden ${showSkyline ? 'nyc-skyline-bg' : ''} ${className}`}>
       {showSkyline && (
         <>
           <div className="window-layer-2" />

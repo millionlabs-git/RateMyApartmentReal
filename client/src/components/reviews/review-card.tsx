@@ -56,25 +56,25 @@ export function ReviewCard({
 
   return (
     <Card>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
               <User className="w-5 h-5 text-gray-500" />
             </div>
-            <div>
-              <p className="font-medium text-[#1C1917] dark:text-white">
+            <div className="min-w-0">
+              <p className="font-medium text-[#1C1917] dark:text-white truncate">
                 {displayName}
               </p>
               <p className="text-sm text-gray-500">Floor {floorNumber}</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="sm:text-right flex sm:block items-center gap-2 sm:flex-shrink-0">
             <StarRating rating={overallRating} />
-            <p className="text-xs text-gray-500 mt-1">{formatDate(createdAt)}</p>
+            <p className="text-xs text-gray-500 sm:mt-1">{formatDate(createdAt)}</p>
           </div>
         </div>
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed break-words overflow-hidden">
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed break-words overflow-hidden" style={{ overflowWrap: "anywhere" }}>
           {reviewText}
         </p>
         {photos.length > 0 && <PhotoGallery photos={photos} />}

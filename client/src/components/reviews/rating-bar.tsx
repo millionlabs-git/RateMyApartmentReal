@@ -9,8 +9,8 @@ export function RatingBar({ label, rating, maxRating = 5 }: RatingBarProps) {
   const displayValue = rating !== null ? rating.toFixed(1) : "-";
 
   return (
-    <div className="flex items-center gap-4">
-      <span className="w-28 text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
+    <div className="flex items-center gap-3 sm:gap-4">
+      <span className="w-24 sm:w-28 text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
         {label}
       </span>
       <div className="flex-1 h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">

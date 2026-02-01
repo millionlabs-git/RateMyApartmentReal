@@ -27,9 +27,9 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
   if (isLoading) {
     return (
       <Card liquid>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <CardTitle className="text-lg font-serif">Reviews</CardTitle>
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-full sm:w-32" />
         </CardHeader>
         <CardContent className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -84,12 +84,12 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
 
   return (
     <Card liquid>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <CardTitle className="text-lg font-serif">
           Reviews ({pagination?.total ?? reviews.length})
         </CardTitle>
         <Select value={sort} onValueChange={(value) => setSort(value as SortOption)}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-full sm:w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
