@@ -15,6 +15,7 @@ interface PlaceDetails {
   city: string;
   state: string;
   zip: string;
+  borough?: string;
   neighborhood?: string;
   lat?: number;
   lng?: number;

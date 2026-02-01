@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Search, Menu, User, LogOut, Shield } from "lucide-react";
+import { Search, Menu, User, LogOut, Shield, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -196,10 +196,12 @@ export default function Home() {
                 <DropdownMenuItem asChild>
                   <Link href="/settings">
                     <a className="flex items-center gap-2 w-full">
-                      Settings
+                      <Settings className="w-4 h-4" />
+                      Account Settings
                     </a>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => logout()}
                   disabled={isLoggingOut}
@@ -267,10 +269,11 @@ export default function Home() {
                     )}
                     <a
                       href="/settings"
-                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Settings
+                      <Settings className="w-5 h-5" />
+                      Account Settings
                     </a>
                     <button
                       onClick={() => {

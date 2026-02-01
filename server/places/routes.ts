@@ -16,6 +16,7 @@ interface PlaceDetails {
   city: string;
   state: string;
   zip: string;
+  borough?: string;
   neighborhood?: string;
   lat?: number;
   lng?: number;
@@ -105,12 +106,18 @@ router.get("/details/:placeId", async (req, res) => {
         ? `${streetNumber} ${streetName}`
         : streetName || data.result.formatted_address?.split(",")[0] || "";
 
+      // In NYC, sublocality_level_1 is the borough (Manhattan, Brooklyn, etc.)
+      // and neighborhood is the actual neighborhood (SoHo, Park Slope, etc.)
+      const borough = getComponent(["sublocality_level_1", "sublocality"]);
+      const neighborhood = getComponent(["neighborhood"]);
+
       const details: PlaceDetails = {
         address,
-        city: getComponent(["locality", "sublocality", "sublocality_level_1"]) || "New York",
+        city: getComponent(["locality"]) || "New York",
         state: getComponent(["administrative_area_level_1"]),
         zip: getComponent(["postal_code"]),
-        neighborhood: getComponent(["neighborhood", "sublocality_level_1"]),
+        borough: borough || undefined,
+        neighborhood: neighborhood || undefined,
         lat: data.result.geometry?.location?.lat,
         lng: data.result.geometry?.location?.lng,
       };

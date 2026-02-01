@@ -260,47 +260,70 @@ export async function findPotentialDuplicates(
 // Minimum similarity score to create a duplicate queue entry
 const MIN_QUEUE_SCORE = 50;
 
+// Threshold for name-only duplicate detection (0-100 scale)
+const NAME_SIMILARITY_THRESHOLD = 80;
+// Threshold for address-only duplicate detection (0-100 scale)
+const ADDRESS_SIMILARITY_THRESHOLD_SCORE = 80;
+
 // Find duplicates for a building and create queue entries
 export async function detectAndQueueDuplicates(buildingId: string): Promise<number> {
   const building = await storage.getBuilding(buildingId);
   if (!building) return 0;
 
-  // Only check approved buildings with geocode
-  if (building.geocodeLat === null || building.geocodeLng === null) {
-    return 0;
-  }
+  const hasGeocode = building.geocodeLat !== null && building.geocodeLng !== null;
 
   const allBuildings = await storage.getAllApprovedBuildings();
   let entriesCreated = 0;
+
+  const normalizedBuildingName = building.name.toLowerCase().trim();
+  const normalizedBuildingAddr = normalizeAddress(building.address);
 
   for (const otherBuilding of allBuildings) {
     // Skip self
     if (otherBuilding.id === buildingId) continue;
 
-    // Skip buildings without geocode
-    if (otherBuilding.geocodeLat === null || otherBuilding.geocodeLng === null) continue;
+    const otherHasGeocode = otherBuilding.geocodeLat !== null && otherBuilding.geocodeLng !== null;
 
-    // Quick distance check - skip if more than 100 meters apart
-    const distance = haversineDistance(
-      building.geocodeLat,
-      building.geocodeLng,
-      otherBuilding.geocodeLat,
-      otherBuilding.geocodeLng
-    );
+    // Check name similarity (catches same-name buildings regardless of location)
+    const normalizedOtherName = otherBuilding.name.toLowerCase().trim();
+    const nameScore = stringSimilarity(normalizedBuildingName, normalizedOtherName);
 
-    if (distance > 100) continue;
+    // Check address similarity (catches same-address buildings regardless of geocode)
+    const normalizedOtherAddr = normalizeAddress(otherBuilding.address);
+    const addrScore = stringSimilarity(normalizedBuildingAddr, normalizedOtherAddr);
 
-    // Calculate similarity score
-    const score = calculateSimilarityScore(building, otherBuilding);
-
-    if (score >= MIN_QUEUE_SCORE) {
-      // Try to create queue entry (will skip if already exists)
+    // Path 1: High name or address similarity alone warrants a queue entry
+    if (nameScore >= NAME_SIMILARITY_THRESHOLD || addrScore >= ADDRESS_SIMILARITY_THRESHOLD_SCORE) {
+      const score = Math.max(nameScore, addrScore);
       const created = await storage.createDuplicateQueueEntry(
         buildingId,
         otherBuilding.id,
         score
       );
       if (created) entriesCreated++;
+      continue;
+    }
+
+    // Path 2: Proximity-based detection (original logic, requires geocode)
+    if (hasGeocode && otherHasGeocode) {
+      const distance = haversineDistance(
+        building.geocodeLat!,
+        building.geocodeLng!,
+        otherBuilding.geocodeLat!,
+        otherBuilding.geocodeLng!
+      );
+
+      if (distance > 100) continue;
+
+      const score = calculateSimilarityScore(building, otherBuilding);
+      if (score >= MIN_QUEUE_SCORE) {
+        const created = await storage.createDuplicateQueueEntry(
+          buildingId,
+          otherBuilding.id,
+          score
+        );
+        if (created) entriesCreated++;
+      }
     }
   }
 

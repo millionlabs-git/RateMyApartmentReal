@@ -103,12 +103,26 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
                     if (details.zip && isValidNYCZip(details.zip)) {
                       form.setValue("zip", details.zip);
                     }
-                    if (details.neighborhood && NYC_NEIGHBORHOODS.includes(details.neighborhood)) {
-                      form.setValue("neighborhood", details.neighborhood);
-                      // Try to auto-detect borough from neighborhood
+                    // Auto-populate borough from API response
+                    if (details.borough && (NYC_BOROUGHS as readonly string[]).includes(details.borough)) {
+                      form.setValue("borough", details.borough);
+                      // Auto-populate neighborhood if it belongs to the detected borough
+                      if (details.neighborhood) {
+                        const boroughNeighborhoods = BOROUGH_NEIGHBORHOODS[details.borough as NYCBorough];
+                        if (boroughNeighborhoods?.includes(details.neighborhood)) {
+                          form.setValue("neighborhood", details.neighborhood);
+                        } else {
+                          form.setValue("neighborhood", "");
+                        }
+                      } else {
+                        form.setValue("neighborhood", "");
+                      }
+                    } else if (details.neighborhood) {
+                      // Fallback: try to detect borough from neighborhood name
                       for (const [borough, neighborhoods] of Object.entries(BOROUGH_NEIGHBORHOODS)) {
                         if (neighborhoods.includes(details.neighborhood)) {
                           form.setValue("borough", borough);
+                          form.setValue("neighborhood", details.neighborhood);
                           break;
                         }
                       }
