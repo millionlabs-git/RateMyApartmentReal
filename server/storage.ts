@@ -67,6 +67,9 @@ export interface IStorage {
   updateBuildingStatus(buildingId: string, status: "approved" | "denied"): Promise<void>;
   bulkUpdateBuildingStatus(buildingIds: string[], status: "approved" | "denied"): Promise<void>;
 
+  // Building deletion
+  deleteBuilding(buildingId: string, adminId: string): Promise<void>;
+
   // Duplicate queue methods
   createDuplicateQueueEntry(buildingId1: string, buildingId2: string, score: number): Promise<boolean>;
   getPendingDuplicates(page: number, limit: number): Promise<{ duplicates: DuplicatePairWithBuildings[]; total: number }>;
@@ -614,6 +617,42 @@ export class MemStorage implements IStorage {
     for (const id of buildingIds) {
       await this.updateBuildingStatus(id, status);
     }
+  }
+
+  async deleteBuilding(buildingId: string, adminId: string): Promise<void> {
+    const building = this.buildings.get(buildingId);
+    if (!building) {
+      throw new Error("Building not found");
+    }
+
+    // Delete associated reviews and their photos
+    const buildingReviews = Array.from(this.reviews.values()).filter(r => r.buildingId === buildingId);
+    for (const review of buildingReviews) {
+      const photos = Array.from(this.reviewPhotos.values()).filter(p => p.reviewId === review.id);
+      for (const photo of photos) {
+        this.reviewPhotos.delete(photo.id);
+      }
+      this.reviews.delete(review.id);
+    }
+
+    // Delete duplicate queue entries
+    const entriesToDelete = Array.from(this.duplicateQueue.entries())
+      .filter(([, entry]) => entry.buildingId1 === buildingId || entry.buildingId2 === buildingId)
+      .map(([entryId]) => entryId);
+    for (const entryId of entriesToDelete) {
+      this.duplicateQueue.delete(entryId);
+    }
+
+    // Delete the building
+    this.buildings.delete(buildingId);
+
+    // Audit log
+    await this.createAuditLog("building_delete", adminId, {
+      buildingId,
+      buildingName: building.name,
+      buildingAddress: building.address,
+      reviewsDeleted: buildingReviews.length,
+    });
   }
 
   // Duplicate queue methods

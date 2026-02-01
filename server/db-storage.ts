@@ -438,6 +438,32 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async deleteBuilding(buildingId: string, adminId: string): Promise<void> {
+    const [building] = await this.db.select().from(buildings).where(eq(buildings.id, buildingId));
+    if (!building) {
+      throw new Error("Building not found");
+    }
+
+    // Count reviews for audit log
+    const buildingReviews = await this.db.select().from(reviews).where(eq(reviews.buildingId, buildingId));
+
+    // Delete duplicate queue entries referencing this building
+    await this.db.delete(duplicateQueue).where(or(
+      eq(duplicateQueue.buildingId1, buildingId),
+      eq(duplicateQueue.buildingId2, buildingId)
+    ));
+
+    // Reviews and photos are cascade-deleted via FK constraints
+    await this.db.delete(buildings).where(eq(buildings.id, buildingId));
+
+    await this.createAuditLog("building_delete", adminId, {
+      buildingId,
+      buildingName: building.name,
+      buildingAddress: building.address,
+      reviewsDeleted: buildingReviews.length,
+    });
+  }
+
   async createDuplicateQueueEntry(buildingId1: string, buildingId2: string, score: number): Promise<boolean> {
     const [id1, id2] = [buildingId1, buildingId2].sort();
 

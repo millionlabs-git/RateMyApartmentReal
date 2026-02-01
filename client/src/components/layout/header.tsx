@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, User, LogOut, Shield } from "lucide-react";
+import { Menu, User, LogOut, Shield, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -127,6 +127,15 @@ export function Header({ variant = "default" }: HeaderProps) {
                   <DropdownMenuSeparator />
                 </>
               )}
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                  <a className="flex items-center gap-2 w-full">
+                    <Settings className="w-4 h-4" />
+                    Account Settings
+                  </a>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => logout()}
                 disabled={isLoggingOut}
@@ -183,6 +192,15 @@ export function Header({ variant = "default" }: HeaderProps) {
 
               {isAuthenticated && user ? (
                 <>
+                  <Link href="/settings">
+                    <a
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Settings className="w-5 h-5" />
+                      Account Settings
+                    </a>
+                  </Link>
                   {user.role === "admin" && (
                     <Link href="/admin">
                       <a

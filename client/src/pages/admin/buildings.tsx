@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, X, MapPin, Building2, Pencil, Search } from "lucide-react";
+import { Check, X, MapPin, Building2, Pencil, Search, Trash2 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,7 @@ export default function AdminBuildings() {
     landlord: "",
     buildingType: "",
   });
+  const [deletingBuilding, setDeletingBuilding] = useState<Building | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -148,6 +149,26 @@ export default function AdminBuildings() {
     onError: () => {
       toast({
         title: "Failed to perform bulk action",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteBuildingMutation = useMutation({
+    mutationFn: async (buildingId: string) => {
+      const res = await fetch(`/api/admin/buildings/${buildingId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete building");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+      toast({ title: "Building deleted successfully" });
+      setDeletingBuilding(null);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to delete building",
         variant: "destructive",
       });
     },
@@ -251,6 +272,14 @@ export default function AdminBuildings() {
                 <Pencil className="h-4 w-4" />
               </Button>
             )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+              onClick={() => setDeletingBuilding(building)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -467,6 +496,30 @@ export default function AdminBuildings() {
           </div>
         </div>
       )}
+
+      {/* Delete Building Confirmation Dialog */}
+      <Dialog open={!!deletingBuilding} onOpenChange={() => setDeletingBuilding(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Building</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{deletingBuilding?.name}"? This will permanently remove the building and all associated reviews. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingBuilding(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deletingBuilding && deleteBuildingMutation.mutate(deletingBuilding.id)}
+              disabled={deleteBuildingMutation.isPending}
+            >
+              {deleteBuildingMutation.isPending ? "Deleting..." : "Delete Building"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Building Dialog */}
       <Dialog open={!!editingBuilding} onOpenChange={() => setEditingBuilding(null)}>

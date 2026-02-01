@@ -243,6 +243,9 @@ router.put("/buildings/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Cannot edit denied buildings" });
     }
 
+    const nameChanged = name && name !== building.name;
+    const addressChanged = address && address !== building.address;
+
     const updatedBuilding = await storage.updateBuilding(id, {
       name: name ?? building.name,
       address: address ?? building.address,
@@ -252,9 +255,35 @@ router.put("/buildings/:id", async (req: Request, res: Response) => {
       buildingType: buildingType !== undefined ? buildingType : building.buildingType,
     });
 
+    // Re-run duplicate detection if name or address changed on an approved building
+    if ((nameChanged || addressChanged) && building.status === "approved") {
+      detectAndQueueDuplicates(id).catch((err) =>
+        console.error("Duplicate detection after edit error:", err)
+      );
+    }
+
     return res.json({ data: updatedBuilding, message: "Building updated successfully" });
   } catch (error) {
     console.error("Update building error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Delete building
+router.delete("/buildings/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = req.user as User;
+
+    const building = await storage.getBuilding(id);
+    if (!building) {
+      return res.status(404).json({ message: "Building not found" });
+    }
+
+    await storage.deleteBuilding(id, user.id);
+    return res.json({ message: "Building deleted successfully" });
+  } catch (error) {
+    console.error("Delete building error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

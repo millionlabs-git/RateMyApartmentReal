@@ -86,17 +86,26 @@ export default function AddBuildingPage() {
   });
 
   const handleSubmit = (data: BuildingFormValues) => {
+    // Clean up borough (not stored in DB) and "not_sure" neighborhood
+    const { borough, ...submitData } = data;
+    if (submitData.neighborhood === "not_sure") {
+      submitData.neighborhood = "";
+    }
     setPendingData(data);
     setExistingBuilding(null);
     setMatchType(null);
-    createMutation.mutate(data);
+    createMutation.mutate(submitData);
   };
 
   const handleForceSubmit = () => {
     if (pendingData) {
+      const { borough, ...submitData } = pendingData;
+      if (submitData.neighborhood === "not_sure") {
+        submitData.neighborhood = "";
+      }
       setExistingBuilding(null);
       setMatchType(null);
-      createMutation.mutate({ ...pendingData, forceSubmit: true });
+      createMutation.mutate({ ...submitData, forceSubmit: true });
     }
   };
 

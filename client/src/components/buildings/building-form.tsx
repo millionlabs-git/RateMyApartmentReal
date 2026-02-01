@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isValidNYCZip, NYC_NEIGHBORHOODS, BUILDING_TYPES } from "@/lib/validation";
+import { isValidNYCZip, NYC_BOROUGHS, BOROUGH_NEIGHBORHOODS, NYC_NEIGHBORHOODS, BUILDING_TYPES } from "@/lib/validation";
+import type { NYCBorough } from "@/lib/validation";
 
 const buildingFormSchema = z.object({
   name: z.string().min(1, "Building name is required").max(255),
@@ -28,6 +29,7 @@ const buildingFormSchema = z.object({
     message: "Please enter a valid NYC ZIP code",
   }),
   landlord: z.string().max(255).optional(),
+  borough: z.string().optional(),
   neighborhood: z.string().max(100).optional(),
   buildingType: z.string().max(50).optional(),
 });
@@ -47,10 +49,23 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
       address: "",
       zip: "",
       landlord: "",
+      borough: "",
       neighborhood: "",
       buildingType: "",
     },
   });
+
+  const selectedBorough = form.watch("borough");
+
+  const neighborhoodOptions = selectedBorough && selectedBorough in BOROUGH_NEIGHBORHOODS
+    ? BOROUGH_NEIGHBORHOODS[selectedBorough as NYCBorough].sort()
+    : [];
+
+  const handleBoroughChange = (value: string, fieldOnChange: (value: string) => void) => {
+    fieldOnChange(value);
+    // Reset neighborhood when borough changes
+    form.setValue("neighborhood", "");
+  };
 
   return (
     <Form {...form}>
@@ -90,6 +105,13 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
                     }
                     if (details.neighborhood && NYC_NEIGHBORHOODS.includes(details.neighborhood)) {
                       form.setValue("neighborhood", details.neighborhood);
+                      // Try to auto-detect borough from neighborhood
+                      for (const [borough, neighborhoods] of Object.entries(BOROUGH_NEIGHBORHOODS)) {
+                        if (neighborhoods.includes(details.neighborhood)) {
+                          form.setValue("borough", borough);
+                          break;
+                        }
+                      }
                     }
                   }}
                   placeholder="Start typing an address..."
@@ -151,18 +173,48 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
 
         <FormField
           control={form.control}
+          name="borough"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Borough *</FormLabel>
+              <Select onValueChange={(value) => handleBoroughChange(value, field.onChange)} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="bg-white dark:bg-gray-800 border-[#E7E5E4]">
+                    <SelectValue placeholder="Select borough" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {NYC_BOROUGHS.map((borough) => (
+                    <SelectItem key={borough} value={borough}>
+                      {borough}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="neighborhood"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Neighborhood</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                disabled={!selectedBorough}
+              >
                 <FormControl>
                   <SelectTrigger className="bg-white dark:bg-gray-800 border-[#E7E5E4]">
-                    <SelectValue placeholder="Select neighborhood" />
+                    <SelectValue placeholder={selectedBorough ? "Select neighborhood" : "Select a borough first"} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {NYC_NEIGHBORHOODS.map((neighborhood) => (
+                  <SelectItem value="not_sure">Prefer not to specify / Not sure</SelectItem>
+                  {neighborhoodOptions.map((neighborhood) => (
                     <SelectItem key={neighborhood} value={neighborhood}>
                       {neighborhood}
                     </SelectItem>
