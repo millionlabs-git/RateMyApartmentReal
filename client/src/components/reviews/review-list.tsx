@@ -103,6 +103,8 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
         {reviews.map((review) => (
           <ReviewCard
             key={review.id}
+            reviewId={review.id}
+            buildingId={buildingId}
             overallRating={review.overallRating}
             floorNumber={review.floorNumber}
             reviewText={review.reviewText}
@@ -110,6 +112,8 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
             userEmail={review.userEmail}
             isAnonymous={review.isAnonymous}
             photos={review.photos}
+            helpfulCount={review.helpfulCount}
+            userHasVotedHelpful={review.userHasVotedHelpful}
           />
         ))}
 

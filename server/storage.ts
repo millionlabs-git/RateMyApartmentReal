@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type PasswordResetToken, type EmailVerificationToken, type Building, type InsertBuilding, type Review, type InsertReview, type ReviewWithBuilding, type ReviewWithUser, type ReviewPhoto, type DuplicateQueueEntry, type AuditLogEntry, type WaitlistEntry } from "@shared/schema";
+import { type User, type InsertUser, type PasswordResetToken, type EmailVerificationToken, type Building, type InsertBuilding, type Review, type InsertReview, type ReviewWithBuilding, type ReviewWithUser, type ReviewPhoto, type DuplicateQueueEntry, type AuditLogEntry, type WaitlistEntry, type ReviewHelpfulVote } from "@shared/schema";
 import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
 import { DatabaseStorage } from "./db-storage";
@@ -45,9 +45,14 @@ export interface IStorage {
 
   // Review methods
   getReviewsByUserId(userId: string, page: number, limit: number): Promise<{ reviews: ReviewWithBuilding[]; total: number }>;
-  getReviewsByBuildingId(buildingId: string, sort: "newest" | "highest" | "lowest", page: number, limit: number): Promise<{ reviews: ReviewWithUser[]; total: number }>;
+  getReviewsByBuildingId(buildingId: string, sort: "newest" | "highest" | "lowest", page: number, limit: number, currentUserId?: string): Promise<{ reviews: ReviewWithUser[]; total: number }>;
   createReview(review: InsertReview): Promise<Review>;
   addReviewPhotos(reviewId: string, photoUrls: string[]): Promise<void>;
+
+  // Review helpful votes
+  toggleReviewHelpful(reviewId: string, userId: string): Promise<{ isHelpful: boolean; helpfulCount: number }>;
+  getReviewHelpfulCount(reviewId: string): Promise<number>;
+  hasUserVotedHelpful(reviewId: string, userId: string): Promise<boolean>;
 
   // User preferences and account management
   updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void>;
@@ -101,6 +106,7 @@ export class MemStorage implements IStorage {
   private duplicateQueue: Map<string, DuplicateQueueEntry>;
   private auditLogs: Map<string, AuditLogEntry>;
   private waitlistEntries: Map<string, WaitlistEntry>;
+  private reviewHelpfulVotes: Map<string, ReviewHelpfulVote>;
 
   constructor() {
     this.users = new Map();
@@ -112,6 +118,7 @@ export class MemStorage implements IStorage {
     this.duplicateQueue = new Map();
     this.auditLogs = new Map();
     this.waitlistEntries = new Map();
+    this.reviewHelpfulVotes = new Map();
   }
 
   // Internal method for seeding admin user (development only)
@@ -362,7 +369,8 @@ export class MemStorage implements IStorage {
     buildingId: string,
     sort: "newest" | "highest" | "lowest",
     page: number,
-    limit: number
+    limit: number,
+    currentUserId?: string
   ): Promise<{ reviews: ReviewWithUser[]; total: number }> {
     let buildingReviews = Array.from(this.reviews.values())
       .filter(review => review.buildingId === buildingId && review.status === "approved");
@@ -389,10 +397,23 @@ export class MemStorage implements IStorage {
       const photos = Array.from(this.reviewPhotos.values())
         .filter(p => p.reviewId === review.id)
         .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+      // Count helpful votes for this review
+      const helpfulCount = Array.from(this.reviewHelpfulVotes.values())
+        .filter(v => v.reviewId === review.id).length;
+
+      // Check if current user has voted
+      const userHasVotedHelpful = currentUserId
+        ? Array.from(this.reviewHelpfulVotes.values())
+            .some(v => v.reviewId === review.id && v.userId === currentUserId)
+        : undefined;
+
       return {
         ...review,
         userEmail: review.isAnonymous ? null : (user?.email ?? null),
         photos,
+        helpfulCount,
+        userHasVotedHelpful,
       };
     });
 
@@ -867,6 +888,44 @@ export class MemStorage implements IStorage {
 
   async getWaitlistCount(): Promise<number> {
     return this.waitlistEntries.size;
+  }
+
+  // Review helpful vote methods
+  async toggleReviewHelpful(reviewId: string, userId: string): Promise<{ isHelpful: boolean; helpfulCount: number }> {
+    // Check if user already voted
+    const existingVote = Array.from(this.reviewHelpfulVotes.values())
+      .find(v => v.reviewId === reviewId && v.userId === userId);
+
+    if (existingVote) {
+      // Remove vote
+      this.reviewHelpfulVotes.delete(existingVote.id);
+      const helpfulCount = Array.from(this.reviewHelpfulVotes.values())
+        .filter(v => v.reviewId === reviewId).length;
+      return { isHelpful: false, helpfulCount };
+    } else {
+      // Add vote
+      const id = randomUUID();
+      const vote: ReviewHelpfulVote = {
+        id,
+        reviewId,
+        userId,
+        createdAt: new Date(),
+      };
+      this.reviewHelpfulVotes.set(id, vote);
+      const helpfulCount = Array.from(this.reviewHelpfulVotes.values())
+        .filter(v => v.reviewId === reviewId).length;
+      return { isHelpful: true, helpfulCount };
+    }
+  }
+
+  async getReviewHelpfulCount(reviewId: string): Promise<number> {
+    return Array.from(this.reviewHelpfulVotes.values())
+      .filter(v => v.reviewId === reviewId).length;
+  }
+
+  async hasUserVotedHelpful(reviewId: string, userId: string): Promise<boolean> {
+    return Array.from(this.reviewHelpfulVotes.values())
+      .some(v => v.reviewId === reviewId && v.userId === userId);
   }
 }
 

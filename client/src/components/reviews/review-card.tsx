@@ -1,6 +1,12 @@
-import { Star, User } from "lucide-react";
+import { useState } from "react";
+import { Star, User, ThumbsUp } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { PhotoGallery } from "./photo-gallery";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface Photo {
   id: string;
@@ -8,6 +14,8 @@ interface Photo {
 }
 
 interface ReviewCardProps {
+  reviewId: string;
+  buildingId: string;
   overallRating: number;
   floorNumber: number;
   reviewText: string;
@@ -15,6 +23,8 @@ interface ReviewCardProps {
   userEmail: string | null;
   isAnonymous: boolean;
   photos?: Photo[];
+  helpfulCount: number;
+  userHasVotedHelpful?: boolean;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -44,6 +54,8 @@ function formatDate(dateString: string): string {
 }
 
 export function ReviewCard({
+  reviewId,
+  buildingId,
   overallRating,
   floorNumber,
   reviewText,
@@ -51,8 +63,64 @@ export function ReviewCard({
   userEmail,
   isAnonymous,
   photos = [],
+  helpfulCount: initialHelpfulCount,
+  userHasVotedHelpful: initialUserHasVoted,
 }: ReviewCardProps) {
   const displayName = isAnonymous || !userEmail ? "Anonymous" : userEmail.split("@")[0];
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Local state for optimistic updates
+  const [helpfulCount, setHelpfulCount] = useState(initialHelpfulCount);
+  const [hasVoted, setHasVoted] = useState(initialUserHasVoted ?? false);
+
+  const helpfulMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/buildings/reviews/${reviewId}/helpful`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update");
+      }
+      return res.json();
+    },
+    onMutate: async () => {
+      // Optimistic update
+      setHasVoted(!hasVoted);
+      setHelpfulCount(hasVoted ? helpfulCount - 1 : helpfulCount + 1);
+    },
+    onError: (error: Error) => {
+      // Revert on error
+      setHasVoted(hasVoted);
+      setHelpfulCount(helpfulCount);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+    onSuccess: (data) => {
+      // Sync with server response
+      setHasVoted(data.data.isHelpful);
+      setHelpfulCount(data.data.helpfulCount);
+      // Invalidate to keep cache in sync
+      queryClient.invalidateQueries({ queryKey: ["/api/buildings", buildingId, "reviews"] });
+    },
+  });
+
+  const handleHelpfulClick = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to mark reviews as helpful.",
+      });
+      return;
+    }
+    helpfulMutation.mutate();
+  };
 
   return (
     <Card>
@@ -78,6 +146,34 @@ export function ReviewCard({
           {reviewText}
         </p>
         {photos.length > 0 && <PhotoGallery photos={photos} />}
+
+        {/* Helpful button */}
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleHelpfulClick}
+            disabled={helpfulMutation.isPending}
+            className={cn(
+              "gap-2 text-sm",
+              hasVoted
+                ? "text-[#ebba48] hover:text-[#ebba48] hover:bg-[#ebba48]/10"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            )}
+          >
+            <ThumbsUp
+              className={cn(
+                "w-4 h-4",
+                hasVoted && "fill-current"
+              )}
+            />
+            {helpfulCount > 0 ? (
+              <span>{helpfulCount} found this helpful</span>
+            ) : (
+              <span>Helpful</span>
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

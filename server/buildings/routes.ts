@@ -165,11 +165,15 @@ router.get("/:id/reviews", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Building not found" });
     }
 
+    // Get current user ID if logged in (for helpful vote status)
+    const currentUserId = req.isAuthenticated() ? (req.user as User).id : undefined;
+
     const { reviews, total } = await storage.getReviewsByBuildingId(
       id,
       sort as "newest" | "highest" | "lowest",
       page,
-      limit
+      limit,
+      currentUserId
     );
 
     return res.json({
@@ -183,6 +187,31 @@ router.get("/:id/reviews", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Get building reviews error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Toggle helpful vote on a review
+router.post("/reviews/:reviewId/helpful", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    const user = req.user as User;
+
+    // Check if user is suspended
+    if (user.status === "suspended") {
+      return res.status(403).json({ message: "Your account has been suspended" });
+    }
+
+    const result = await storage.toggleReviewHelpful(reviewId, user.id);
+
+    return res.json({
+      data: {
+        isHelpful: result.isHelpful,
+        helpfulCount: result.helpfulCount,
+      },
+    });
+  } catch (error) {
+    console.error("Toggle helpful vote error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

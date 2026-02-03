@@ -10,6 +10,7 @@ import {
   duplicateQueue,
   auditLog,
   waitlist,
+  reviewHelpfulVotes,
   type User,
   type InsertUser,
   type PasswordResetToken,
@@ -24,6 +25,7 @@ import {
   type DuplicateQueueEntry,
   type AuditLogEntry,
   type WaitlistEntry,
+  type ReviewHelpfulVote,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 import type {
@@ -225,7 +227,7 @@ export class DatabaseStorage implements IStorage {
     return { reviews: reviewsWithBuildings, total };
   }
 
-  async getReviewsByBuildingId(buildingId: string, sort: "newest" | "highest" | "lowest", page: number, limit: number): Promise<{ reviews: ReviewWithUser[]; total: number }> {
+  async getReviewsByBuildingId(buildingId: string, sort: "newest" | "highest" | "lowest", page: number, limit: number, currentUserId?: string): Promise<{ reviews: ReviewWithUser[]; total: number }> {
     const [{ total }] = await this.db.select({ total: count() }).from(reviews).where(and(eq(reviews.buildingId, buildingId), eq(reviews.status, "approved")));
 
     const orderBy = sort === "newest" ? desc(reviews.createdAt)
@@ -243,10 +245,30 @@ export class DatabaseStorage implements IStorage {
     const reviewsWithUsers: ReviewWithUser[] = await Promise.all(buildingReviews.map(async (review: typeof buildingReviews[0]) => {
       const [user] = await this.db.select().from(users).where(eq(users.id, review.userId));
       const photos = await this.db.select().from(reviewPhotos).where(eq(reviewPhotos.reviewId, review.id)).orderBy(asc(reviewPhotos.createdAt));
+
+      // Get helpful count
+      const [{ helpfulCount }] = await this.db.select({ helpfulCount: count() })
+        .from(reviewHelpfulVotes)
+        .where(eq(reviewHelpfulVotes.reviewId, review.id));
+
+      // Check if current user has voted
+      let userHasVotedHelpful: boolean | undefined;
+      if (currentUserId) {
+        const [vote] = await this.db.select()
+          .from(reviewHelpfulVotes)
+          .where(and(
+            eq(reviewHelpfulVotes.reviewId, review.id),
+            eq(reviewHelpfulVotes.userId, currentUserId)
+          ));
+        userHasVotedHelpful = !!vote;
+      }
+
       return {
         ...review,
         userEmail: review.isAnonymous ? null : (user?.email ?? null),
         photos,
+        helpfulCount,
+        userHasVotedHelpful,
       };
     }));
 
@@ -630,5 +652,49 @@ export class DatabaseStorage implements IStorage {
   async getWaitlistCount(): Promise<number> {
     const [{ total }] = await this.db.select({ total: count() }).from(waitlist);
     return total;
+  }
+
+  // Review helpful vote methods
+  async toggleReviewHelpful(reviewId: string, userId: string): Promise<{ isHelpful: boolean; helpfulCount: number }> {
+    // Check if user already voted
+    const [existingVote] = await this.db.select()
+      .from(reviewHelpfulVotes)
+      .where(and(
+        eq(reviewHelpfulVotes.reviewId, reviewId),
+        eq(reviewHelpfulVotes.userId, userId)
+      ));
+
+    if (existingVote) {
+      // Remove vote
+      await this.db.delete(reviewHelpfulVotes).where(eq(reviewHelpfulVotes.id, existingVote.id));
+      const [{ helpfulCount }] = await this.db.select({ helpfulCount: count() })
+        .from(reviewHelpfulVotes)
+        .where(eq(reviewHelpfulVotes.reviewId, reviewId));
+      return { isHelpful: false, helpfulCount };
+    } else {
+      // Add vote
+      await this.db.insert(reviewHelpfulVotes).values({ reviewId, userId });
+      const [{ helpfulCount }] = await this.db.select({ helpfulCount: count() })
+        .from(reviewHelpfulVotes)
+        .where(eq(reviewHelpfulVotes.reviewId, reviewId));
+      return { isHelpful: true, helpfulCount };
+    }
+  }
+
+  async getReviewHelpfulCount(reviewId: string): Promise<number> {
+    const [{ total }] = await this.db.select({ total: count() })
+      .from(reviewHelpfulVotes)
+      .where(eq(reviewHelpfulVotes.reviewId, reviewId));
+    return total;
+  }
+
+  async hasUserVotedHelpful(reviewId: string, userId: string): Promise<boolean> {
+    const [vote] = await this.db.select()
+      .from(reviewHelpfulVotes)
+      .where(and(
+        eq(reviewHelpfulVotes.reviewId, reviewId),
+        eq(reviewHelpfulVotes.userId, userId)
+      ));
+    return !!vote;
   }
 }
