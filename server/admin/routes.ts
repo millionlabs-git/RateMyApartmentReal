@@ -483,4 +483,74 @@ router.post("/duplicates/:id/merge", async (req: Request, res: Response) => {
   }
 });
 
+// =====================
+// Waitlist Management
+// =====================
+
+// Get waitlist entries with pagination
+router.get("/waitlist", async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const search = (req.query.search as string) || "";
+
+    const { entries, total } = await storage.getWaitlistEntries(search, page, limit);
+
+    return res.json({
+      data: entries,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    console.error("Get waitlist entries error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Get waitlist count for dashboard
+router.get("/waitlist/count", async (req: Request, res: Response) => {
+  try {
+    const count = await storage.getWaitlistCount();
+    return res.json({ data: { count } });
+  } catch (error) {
+    console.error("Get waitlist count error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Export waitlist as CSV
+router.get("/waitlist/export", async (req: Request, res: Response) => {
+  try {
+    // Get all entries (no pagination for export)
+    const { entries } = await storage.getWaitlistEntries("", 1, 100000);
+
+    // Build CSV content
+    const csvHeader = "Email,Signed Up\n";
+    const csvRows = entries.map(entry => {
+      const date = new Date(entry.createdAt).toISOString();
+      return `"${entry.email}","${date}"`;
+    }).join("\n");
+
+    const csv = csvHeader + csvRows;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="waitlist-${new Date().toISOString().split("T")[0]}.csv"`);
+    return res.send(csv);
+  } catch (error) {
+    console.error("Export waitlist error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Delete waitlist entry
+router.delete("/waitlist/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await storage.deleteWaitlistEntry(id);
+    return res.json({ message: "Waitlist entry deleted" });
+  } catch (error) {
+    console.error("Delete waitlist entry error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;

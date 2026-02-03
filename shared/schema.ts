@@ -167,3 +167,13 @@ export const auditLog = pgTable("audit_log", {
 });
 
 export type AuditLogEntry = typeof auditLog.$inferSelect;
+
+// Waitlist schema (pre-launch email collection)
+export const waitlist = pgTable("waitlist", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type WaitlistEntry = typeof waitlist.$inferSelect;
+export type InsertWaitlistEntry = typeof waitlist.$inferInsert;

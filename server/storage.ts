@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type PasswordResetToken, type EmailVerificationToken, type Building, type InsertBuilding, type Review, type InsertReview, type ReviewWithBuilding, type ReviewWithUser, type ReviewPhoto, type DuplicateQueueEntry, type AuditLogEntry } from "@shared/schema";
+import { type User, type InsertUser, type PasswordResetToken, type EmailVerificationToken, type Building, type InsertBuilding, type Review, type InsertReview, type ReviewWithBuilding, type ReviewWithUser, type ReviewPhoto, type DuplicateQueueEntry, type AuditLogEntry, type WaitlistEntry } from "@shared/schema";
 import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
 import { DatabaseStorage } from "./db-storage";
@@ -82,6 +82,13 @@ export interface IStorage {
 
   // Audit log
   createAuditLog(actionType: string, userId: string | null, details: object): Promise<void>;
+
+  // Waitlist methods
+  getWaitlistEntries(search: string, page: number, limit: number): Promise<{ entries: WaitlistEntry[]; total: number }>;
+  createWaitlistEntry(email: string): Promise<WaitlistEntry>;
+  getWaitlistEntryByEmail(email: string): Promise<WaitlistEntry | undefined>;
+  deleteWaitlistEntry(id: string): Promise<void>;
+  getWaitlistCount(): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -93,6 +100,7 @@ export class MemStorage implements IStorage {
   private reviewPhotos: Map<string, ReviewPhoto>;
   private duplicateQueue: Map<string, DuplicateQueueEntry>;
   private auditLogs: Map<string, AuditLogEntry>;
+  private waitlistEntries: Map<string, WaitlistEntry>;
 
   constructor() {
     this.users = new Map();
@@ -103,6 +111,7 @@ export class MemStorage implements IStorage {
     this.reviewPhotos = new Map();
     this.duplicateQueue = new Map();
     this.auditLogs = new Map();
+    this.waitlistEntries = new Map();
   }
 
   // Internal method for seeding admin user (development only)
@@ -817,6 +826,47 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
     };
     this.auditLogs.set(id, entry);
+  }
+
+  // Waitlist methods
+  async getWaitlistEntries(search: string, page: number, limit: number): Promise<{ entries: WaitlistEntry[]; total: number }> {
+    let entries = Array.from(this.waitlistEntries.values());
+
+    if (search) {
+      const searchLower = search.toLowerCase();
+      entries = entries.filter(e => e.email.toLowerCase().includes(searchLower));
+    }
+
+    entries.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const total = entries.length;
+    const offset = (page - 1) * limit;
+    const paginatedEntries = entries.slice(offset, offset + limit);
+
+    return { entries: paginatedEntries, total };
+  }
+
+  async createWaitlistEntry(email: string): Promise<WaitlistEntry> {
+    const id = randomUUID();
+    const entry: WaitlistEntry = {
+      id,
+      email,
+      createdAt: new Date(),
+    };
+    this.waitlistEntries.set(id, entry);
+    return entry;
+  }
+
+  async getWaitlistEntryByEmail(email: string): Promise<WaitlistEntry | undefined> {
+    return Array.from(this.waitlistEntries.values()).find(e => e.email.toLowerCase() === email.toLowerCase());
+  }
+
+  async deleteWaitlistEntry(id: string): Promise<void> {
+    this.waitlistEntries.delete(id);
+  }
+
+  async getWaitlistCount(): Promise<number> {
+    return this.waitlistEntries.size;
   }
 }
 

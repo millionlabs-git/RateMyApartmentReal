@@ -35,8 +35,10 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminReviews from "@/pages/admin/reviews";
 import AdminBuildings from "@/pages/admin/buildings";
+import AdminWaitlist from "@/pages/admin/waitlist";
 import AdminDuplicates from "@/pages/admin/duplicates";
 import DuplicateCompare from "@/pages/admin/duplicate-compare";
+import EarlyAccess from "@/pages/early-access";
 
 function GuestRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -94,6 +96,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/contact" component={Contact} />
+      <Route path="/early-access" component={EarlyAccess} />
       <Route path="/admin">
         {() => (
           <AdminRoute>
@@ -119,6 +122,13 @@ function Router() {
         {() => (
           <AdminRoute>
             <AdminBuildings />
+          </AdminRoute>
+        )}
+      </Route>
+      <Route path="/admin/waitlist">
+        {() => (
+          <AdminRoute>
+            <AdminWaitlist />
           </AdminRoute>
         )}
       </Route>

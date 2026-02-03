@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Search, Menu, User, LogOut, Shield, Settings } from "lucide-react";
+import { Menu, User, LogOut, Shield, Settings } from "lucide-react";
+import { SmartSearch } from "@/components/buildings/smart-search";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -23,7 +24,6 @@ const nycNightVideo = "/nyc-background.mp4";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const { isDark } = useTheme();
@@ -90,15 +90,6 @@ export default function Home() {
       syncAndSwitch(dayVideo, nightVideo);
     }
   }, [isDark]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setLocation(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      setLocation("/search");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#FDFAF6]">
@@ -408,7 +399,7 @@ export default function Home() {
             className="font-serif text-4xl md:text-5xl lg:text-[4rem] font-normal text-white leading-[1.1] tracking-tight mb-5"
             data-testid="text-hero-title"
           >
-            Find Your Perfect NYC Apartment
+            Know Before You Rent.
           </h1>
           <p
             className="text-lg md:text-xl text-white/85 mb-10 md:mb-12 font-normal"
@@ -417,42 +408,23 @@ export default function Home() {
             Honest, anonymous reviews from real NYC renters.
           </p>
 
-          {/* Liquid Glass Search Box */}
+          {/* Smart Search Box */}
           <div className="w-full max-w-[600px] mx-auto">
-            <form onSubmit={handleSearch}>
-              <div className="relative flex flex-col md:flex-row liquid-glass-hero liquid-edge liquid-gradient rounded-2xl md:rounded-[20px] overflow-hidden">
-
-                {/* Search Icon */}
-                <Search className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70 pointer-events-none z-10 hidden md:block" />
-
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by building name or address..."
-                  className="flex-1 border-none py-5 px-5 md:py-5 md:pl-14 md:pr-4 font-sans text-base text-white bg-transparent placeholder:text-white/60 focus:outline-none relative z-10"
-                  data-testid="input-search"
-                />
-
-                <button
-                  type="submit"
-                  className="relative z-10 bg-white/20 text-white border-t md:border-t-0 md:border-l border-white/15 py-4 md:py-5 px-6 md:px-8 font-sans text-[0.9375rem] font-medium cursor-pointer transition-all duration-250 hover:bg-white/30"
-                  data-testid="button-search"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
+            <SmartSearch
+              variant="hero"
+              placeholder="Search by building name or address..."
+            />
 
             <p className="mt-5 text-sm text-white/60">
-              Try{" "}
+              Try searching for{" "}
               <a
-                href="/search?q=123+Main+St"
+                href="/search?q=The+Belnord"
                 className="text-white underline underline-offset-2 decoration-white/40 hover:decoration-white transition-colors"
                 data-testid="link-example-search"
               >
-                123 Main Street, Brooklyn
+                The Belnord
               </a>
+              {" "}or any NYC address
             </p>
           </div>
         </div>

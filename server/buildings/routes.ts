@@ -48,6 +48,56 @@ const createBuildingSchema = z.object({
   buildingType: z.string().max(50).optional(),
 });
 
+// Helper function to derive borough from ZIP code
+function getBoroughFromZip(zip: string): string | null {
+  const zipNum = parseInt(zip, 10);
+  if (isNaN(zipNum)) return null;
+
+  // Manhattan
+  if (zipNum >= 10001 && zipNum <= 10282) return "Manhattan";
+  // Staten Island
+  if (zipNum >= 10301 && zipNum <= 10314) return "Staten Island";
+  // Bronx
+  if (zipNum >= 10451 && zipNum <= 10475) return "Bronx";
+  // Brooklyn
+  if (zipNum >= 11201 && zipNum <= 11256) return "Brooklyn";
+  // Queens
+  if (zipNum >= 11004 && zipNum <= 11697) return "Queens";
+
+  return null;
+}
+
+// Search suggestions endpoint - returns platform buildings with metadata for autocomplete
+router.get("/search-suggestions", async (req: Request, res: Response) => {
+  try {
+    const query = (req.query.q as string) || "";
+    const limit = Math.min(parseInt(req.query.limit as string) || 5, 10);
+
+    // Require at least 2 characters
+    if (query.length < 2) {
+      return res.json({ data: [] });
+    }
+
+    const { buildings } = await storage.searchBuildings(query, 1, limit);
+
+    // Add borough information and format for suggestions
+    const suggestions = buildings.map((building) => ({
+      id: building.id,
+      name: building.name,
+      address: building.address,
+      borough: getBoroughFromZip(building.zip),
+      neighborhood: building.neighborhood,
+      averageRating: building.averageRating,
+      reviewCount: building.reviewCount,
+    }));
+
+    return res.json({ data: suggestions });
+  } catch (error) {
+    console.error("Search suggestions error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     const search = (req.query.search as string) || "";

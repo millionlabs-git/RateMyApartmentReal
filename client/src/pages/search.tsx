@@ -1,6 +1,6 @@
 import { useSearch, useLocation } from "wouter";
 import { useBuildings } from "@/hooks/use-buildings";
-import { BuildingSearch } from "@/components/buildings/building-search";
+import { SmartSearch } from "@/components/buildings/smart-search";
 import { BuildingList } from "@/components/buildings/building-list";
 import { Pagination } from "@/components/buildings/pagination";
 import { Layout } from "@/components/layout/layout";
@@ -36,7 +36,11 @@ export default function SearchPage() {
               : "Search thousands of NYC apartments and read honest reviews"
             }
           </p>
-          <BuildingSearch initialValue={query} variant="hero" />
+          <SmartSearch
+            variant="hero"
+            initialValue={query}
+            onSearch={(q) => setLocation(`/search?q=${encodeURIComponent(q)}`)}
+          />
         </div>
 
         {/* Results section */}

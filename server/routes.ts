@@ -7,6 +7,7 @@ import userRoutes from "./user/routes";
 import buildingsRoutes from "./buildings/routes";
 import adminRoutes from "./admin/routes";
 import placesRoutes from "./places/routes";
+import waitlistRoutes from "./waitlist/routes";
 import { storage } from "./storage";
 import MemoryStore from "memorystore";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
@@ -44,6 +45,7 @@ export async function registerRoutes(
   app.use("/api/buildings", buildingsRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/places", placesRoutes);
+  app.use("/api/waitlist", waitlistRoutes);
   
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);

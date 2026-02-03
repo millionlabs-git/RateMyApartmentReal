@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, FileText, Building2, LogOut, GitMerge } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Building2, LogOut, GitMerge, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/reviews", label: "Reviews", icon: FileText },
   { href: "/admin/buildings", label: "Buildings", icon: Building2 },
+  { href: "/admin/waitlist", label: "Waitlist", icon: Mail },
   { href: "/admin/duplicates", label: "Duplicates", icon: GitMerge, showBadge: true },
 ];
 

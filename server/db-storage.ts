@@ -9,6 +9,7 @@ import {
   reviewPhotos,
   duplicateQueue,
   auditLog,
+  waitlist,
   type User,
   type InsertUser,
   type PasswordResetToken,
@@ -22,6 +23,7 @@ import {
   type ReviewPhoto,
   type DuplicateQueueEntry,
   type AuditLogEntry,
+  type WaitlistEntry,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 import type {
@@ -590,5 +592,43 @@ export class DatabaseStorage implements IStorage {
       userId,
       details: JSON.stringify(details),
     });
+  }
+
+  // Waitlist methods
+  async getWaitlistEntries(search: string, page: number, limit: number): Promise<{ entries: WaitlistEntry[]; total: number }> {
+    const whereCondition = search
+      ? sql`LOWER(${waitlist.email}) LIKE ${`%${search.toLowerCase()}%`}`
+      : undefined;
+
+    const [{ total }] = await this.db.select({ total: count() }).from(waitlist).where(whereCondition);
+
+    const offset = (page - 1) * limit;
+    const entries = await this.db.select()
+      .from(waitlist)
+      .where(whereCondition)
+      .orderBy(desc(waitlist.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return { entries, total };
+  }
+
+  async createWaitlistEntry(email: string): Promise<WaitlistEntry> {
+    const [entry] = await this.db.insert(waitlist).values({ email }).returning();
+    return entry;
+  }
+
+  async getWaitlistEntryByEmail(email: string): Promise<WaitlistEntry | undefined> {
+    const [entry] = await this.db.select().from(waitlist).where(sql`LOWER(${waitlist.email}) = ${email.toLowerCase()}`);
+    return entry;
+  }
+
+  async deleteWaitlistEntry(id: string): Promise<void> {
+    await this.db.delete(waitlist).where(eq(waitlist.id, id));
+  }
+
+  async getWaitlistCount(): Promise<number> {
+    const [{ total }] = await this.db.select({ total: count() }).from(waitlist);
+    return total;
   }
 }
