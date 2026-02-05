@@ -56,6 +56,7 @@ export interface IStorage {
 
   // User preferences and account management
   updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void>;
+  updateUserDisplayName(userId: string, displayName: string | null): Promise<void>;
   deleteUser(userId: string): Promise<void>;
 
   // Admin methods
@@ -141,6 +142,7 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      displayName: null,
       role: "user",
       status: "active",
       emailNotifications: true,
@@ -410,7 +412,7 @@ export class MemStorage implements IStorage {
 
       return {
         ...review,
-        userEmail: review.isAnonymous ? null : (user?.email ?? null),
+        userDisplayName: review.isAnonymous ? null : (user?.displayName ?? null),
         photos,
         helpfulCount,
         userHasVotedHelpful,
@@ -459,6 +461,14 @@ export class MemStorage implements IStorage {
     const user = this.users.get(userId);
     if (user) {
       user.emailNotifications = emailNotifications;
+      this.users.set(userId, user);
+    }
+  }
+
+  async updateUserDisplayName(userId: string, displayName: string | null): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.displayName = displayName;
       this.users.set(userId, user);
     }
   }
@@ -976,6 +986,7 @@ if (!process.env.DATABASE_URL && storage instanceof MemStorage) {
       id: adminId,
       email: "admin@ratemyapartment.com",
       passwordHash: adminPasswordHash,
+      displayName: null,
       role: "admin",
       status: "active",
       emailNotifications: true,

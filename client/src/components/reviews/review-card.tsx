@@ -20,7 +20,7 @@ interface ReviewCardProps {
   floorNumber: number;
   reviewText: string;
   createdAt: string;
-  userEmail: string | null;
+  userDisplayName: string | null;
   isAnonymous: boolean;
   photos?: Photo[];
   helpfulCount: number;
@@ -60,13 +60,19 @@ export function ReviewCard({
   floorNumber,
   reviewText,
   createdAt,
-  userEmail,
+  userDisplayName,
   isAnonymous,
   photos = [],
   helpfulCount: initialHelpfulCount,
   userHasVotedHelpful: initialUserHasVoted,
 }: ReviewCardProps) {
-  const displayName = isAnonymous || !userEmail ? "Anonymous" : userEmail.split("@")[0];
+  // Display logic:
+  // - Anonymous review -> "Anonymous Renter"
+  // - Non-anonymous + display name -> Show Display Name
+  // - Non-anonymous + no display name -> "NYC Renter"
+  const displayName = isAnonymous
+    ? "Anonymous Renter"
+    : (userDisplayName || "NYC Renter");
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();

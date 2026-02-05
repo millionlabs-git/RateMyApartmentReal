@@ -17,6 +17,7 @@ function getSafeUser(user: User): Omit<User, "passwordHash"> {
   return {
     id: user.id,
     email: user.email,
+    displayName: user.displayName,
     role: user.role,
     status: user.status,
     emailNotifications: user.emailNotifications,
@@ -70,6 +71,7 @@ router.post("/signup", async (req: Request, res: Response) => {
       const safeUser: Omit<User, "passwordHash"> = {
         id: user.id,
         email: user.email,
+        displayName: user.displayName,
         role: user.role,
         status: user.status,
         emailNotifications: user.emailNotifications,

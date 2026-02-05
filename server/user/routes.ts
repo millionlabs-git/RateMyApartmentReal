@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { z } from "zod";
-import { changePasswordSchema, type User } from "@shared/schema";
+import { changePasswordSchema, updateDisplayNameSchema, type User } from "@shared/schema";
 import { storage } from "../storage";
 import { sendEmailVerificationEmail } from "../services/email";
 import { ZodError } from "zod";
@@ -160,6 +160,33 @@ router.patch("/preferences", requireAuth, async (req: Request, res: Response) =>
     });
   } catch (error) {
     console.error("Update preferences error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.patch("/display-name", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const validatedData = updateDisplayNameSchema.parse(req.body);
+    const user = req.user as User;
+
+    // Normalize empty string to null
+    const displayName = validatedData.displayName?.trim() || null;
+
+    await storage.updateUserDisplayName(user.id, displayName);
+
+    return res.json({
+      data: {
+        message: "Display name updated successfully",
+        displayName,
+      },
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const validationError = fromZodError(error);
+      return res.status(400).json({ message: validationError.message });
+    }
+
+    console.error("Update display name error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

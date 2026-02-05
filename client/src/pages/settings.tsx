@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { DisplayNameForm } from "@/components/settings/display-name-form";
 import { EmailChangeForm } from "@/components/settings/email-change-form";
 import { PasswordChangeForm } from "@/components/settings/password-change-form";
 import { MyReviews } from "@/components/settings/my-reviews";
@@ -46,6 +47,18 @@ export default function SettingsPage() {
       {/* Content section */}
       <div className="py-8 px-4">
         <div className="max-w-2xl mx-auto space-y-6">
+          <Card liquid>
+            <CardHeader>
+              <CardTitle className="text-xl">Display Name</CardTitle>
+              <CardDescription>
+                Set a public display name that will appear on your non-anonymous reviews.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DisplayNameForm currentDisplayName={user.displayName} />
+            </CardContent>
+          </Card>
+
           <Card liquid>
             <CardHeader>
               <CardTitle className="text-xl">Email Address</CardTitle>

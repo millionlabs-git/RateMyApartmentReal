@@ -24,8 +24,10 @@ interface Review {
   isAnonymous: boolean;
   status: string;
   createdAt: string;
-  userEmail: string | null;
+  userDisplayName: string | null;
   photos: Photo[];
+  helpfulCount: number;
+  userHasVotedHelpful?: boolean;
 }
 
 interface ReviewsResponse {

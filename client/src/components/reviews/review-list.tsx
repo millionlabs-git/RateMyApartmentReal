@@ -109,7 +109,7 @@ export function ReviewList({ buildingId, isAuthenticated }: ReviewListProps) {
             floorNumber={review.floorNumber}
             reviewText={review.reviewText}
             createdAt={review.createdAt}
-            userEmail={review.userEmail}
+            userDisplayName={review.userDisplayName}
             isAnonymous={review.isAnonymous}
             photos={review.photos}
             helpfulCount={review.helpfulCount}

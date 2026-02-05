@@ -265,7 +265,7 @@ export class DatabaseStorage implements IStorage {
 
       return {
         ...review,
-        userEmail: review.isAnonymous ? null : (user?.email ?? null),
+        userDisplayName: review.isAnonymous ? null : (user?.displayName ?? null),
         photos,
         helpfulCount,
         userHasVotedHelpful,
@@ -293,6 +293,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void> {
     await this.db.update(users).set({ emailNotifications }).where(eq(users.id, userId));
+  }
+
+  async updateUserDisplayName(userId: string, displayName: string | null): Promise<void> {
+    await this.db.update(users).set({ displayName }).where(eq(users.id, userId));
   }
 
   async deleteUser(userId: string): Promise<void> {

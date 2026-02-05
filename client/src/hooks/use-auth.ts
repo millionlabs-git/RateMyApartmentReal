@@ -4,6 +4,7 @@ import { apiRequest, getQueryFn } from "@/lib/queryClient";
 interface User {
   id: string;
   email: string;
+  displayName: string | null;
   role: "user" | "admin";
   status: "active" | "suspended";
   emailNotifications: boolean;

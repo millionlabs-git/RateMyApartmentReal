@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  displayName: text("display_name"),
   role: userRoleEnum("role").notNull().default("user"),
   status: userStatusEnum("status").notNull().default("active"),
   emailNotifications: boolean("email_notifications").notNull().default(true),
@@ -69,7 +70,12 @@ export const changePasswordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const updateDisplayNameSchema = z.object({
+  displayName: z.string().max(50, "Display name must be 50 characters or less").optional().nullable(),
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpdateDisplayNameInput = z.infer<typeof updateDisplayNameSchema>;
 export type User = typeof users.$inferSelect;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
@@ -128,7 +134,7 @@ export type ReviewWithBuilding = Review & {
 
 // Review with user info for public display
 export type ReviewWithUser = Review & {
-  userEmail: string | null; // null if anonymous
+  userDisplayName: string | null; // null if anonymous
   photos: ReviewPhoto[];
   helpfulCount: number;
   userHasVotedHelpful?: boolean; // Only set when user is logged in
