@@ -39,6 +39,7 @@ import AdminWaitlist from "@/pages/admin/waitlist";
 import AdminDuplicates from "@/pages/admin/duplicates";
 import DuplicateCompare from "@/pages/admin/duplicate-compare";
 import EarlyAccess from "@/pages/early-access";
+import MyReviews from "@/pages/my-reviews";
 
 function GuestRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -89,6 +90,9 @@ function Router() {
       <Route path="/reset-password/:token" component={ResetPassword} />
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
+      </Route>
+      <Route path="/my-reviews">
+        {() => <ProtectedRoute component={MyReviews} />}
       </Route>
       <Route path="/verify-email/:token" component={VerifyEmail} />
       <Route path="/forbidden" component={Forbidden} />

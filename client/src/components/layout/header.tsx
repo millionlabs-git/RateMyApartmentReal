@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, User, LogOut, Shield, Settings } from "lucide-react";
+import { Menu, User, LogOut, Shield, Settings, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -128,6 +128,14 @@ export function Header({ variant = "default" }: HeaderProps) {
                 </>
               )}
               <DropdownMenuItem asChild>
+                <Link href="/my-reviews">
+                  <a className="flex items-center gap-2 w-full">
+                    <FileText className="w-4 h-4" />
+                    My Reviews
+                  </a>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/settings">
                   <a className="flex items-center gap-2 w-full">
                     <Settings className="w-4 h-4" />
@@ -192,6 +200,15 @@ export function Header({ variant = "default" }: HeaderProps) {
 
               {isAuthenticated && user ? (
                 <>
+                  <Link href="/my-reviews">
+                    <a
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FileText className="w-5 h-5" />
+                      My Reviews
+                    </a>
+                  </Link>
                   <Link href="/settings">
                     <a
                       className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
