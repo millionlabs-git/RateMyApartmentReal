@@ -23,6 +23,11 @@ export default function About() {
           <Card liquid className="w-full max-w-3xl">
             <CardContent className="pt-8 pb-8">
               <div className="prose dark:prose-invert max-w-none">
+                <p className="text-[#57534E] dark:text-gray-400 mb-6 text-lg italic border-l-4 border-[#ebba48] pl-4">
+                  We built Rate My Apartment to give renters access to information that's often
+                  hidden until after a lease is signed. Reviewers can choose to stay anonymous.
+                </p>
+
                 <h2 className="font-serif text-xl text-[#1C1917] dark:text-white mb-4">
                   Our Mission
                 </h2>

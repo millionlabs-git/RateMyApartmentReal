@@ -212,6 +212,10 @@ export function SignupForm() {
         >
           {signupMutation.isPending ? "Creating account..." : "Create Account"}
         </Button>
+
+        <p className="text-center text-sm text-[#57534E] dark:text-gray-400">
+          You control what's shown publicly. Reviews can be posted anonymously.
+        </p>
       </form>
     </Form>
   );

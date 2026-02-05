@@ -233,7 +233,7 @@ export function ReviewForm({ onSubmit, isSubmitting }: ReviewFormProps) {
                     Post Anonymously
                   </Label>
                   <p className="text-sm text-gray-500">
-                    Shows "Anonymous Renter" instead of your display name
+                    Your name and email are never shared unless you choose to display them.
                   </p>
                 </div>
                 <Switch

@@ -18,7 +18,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p className="text-white/70">
-              Sign in to your account to continue
+              Sign in to share your experience — anonymously if you choose.
             </p>
           </div>
         </div>
