@@ -139,7 +139,7 @@ export default function Home() {
             }`}
             data-testid="link-add-building"
           >
-            Add Building
+            Add a Review
           </a>
 
           {/* Theme Toggle */}
@@ -212,13 +212,26 @@ export default function Home() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <a
-              href="/login"
-              className={`hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg bg-[#ebba48] text-white`}
-              data-testid="link-login"
-            >
-              Sign In
-            </a>
+            <>
+              <a
+                href="/login"
+                className={`hidden md:block text-sm font-medium transition-colors ${
+                  scrolled
+                    ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+                    : "text-white/85 hover:text-white"
+                }`}
+                data-testid="link-login"
+              >
+                Sign In
+              </a>
+              <a
+                href="/signup"
+                className="hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg bg-[#ebba48] text-white"
+                data-testid="link-signup"
+              >
+                Create Account
+              </a>
+            </>
           )}
 
           {/* Mobile Menu */}
@@ -251,7 +264,7 @@ export default function Home() {
                   data-testid="mobile-link-add-building"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add Building
+                  Add a Review
                 </a>
 
                 {isAuthenticated && user ? (
@@ -318,6 +331,10 @@ export default function Home() {
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <ThemeToggle />
                 </div>
+
+                <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                  Reviews can be posted anonymously
+                </p>
               </nav>
             </SheetContent>
           </Sheet>

@@ -87,7 +87,7 @@ export function Header({ variant = "default" }: HeaderProps) {
             }`}
             data-testid="link-add-building"
           >
-            Add Building
+            Add a Review
           </a>
         </Link>
 
@@ -155,14 +155,28 @@ export function Header({ variant = "default" }: HeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link href="/login">
-            <a
-              className="hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg bg-[#ebba48] text-white"
-              data-testid="link-login"
-            >
-              Sign In
-            </a>
-          </Link>
+          <>
+            <Link href="/login">
+              <a
+                className={`hidden md:block text-sm font-medium transition-colors ${
+                  isTransparent
+                    ? "text-white/85 hover:text-white"
+                    : "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+                }`}
+                data-testid="link-login"
+              >
+                Sign In
+              </a>
+            </Link>
+            <Link href="/signup">
+              <a
+                className="hidden md:block text-sm font-medium px-4 py-2.5 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-lg bg-[#ebba48] text-white"
+                data-testid="link-signup"
+              >
+                Create Account
+              </a>
+            </Link>
+          </>
         )}
 
         {/* Mobile Menu */}
@@ -194,7 +208,7 @@ export function Header({ variant = "default" }: HeaderProps) {
                   className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add Building
+                  Add a Review
                 </a>
               </Link>
 
@@ -265,6 +279,10 @@ export function Header({ variant = "default" }: HeaderProps) {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <ThemeToggle variant="default" />
               </div>
+
+              <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                Reviews can be posted anonymously
+              </p>
             </nav>
           </SheetContent>
         </Sheet>
