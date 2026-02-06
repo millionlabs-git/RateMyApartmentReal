@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Menu, User, LogOut, Shield, Settings, FileText } from "lucide-react";
+import { Menu, User, LogOut, Shield, Settings, FileText, Search } from "lucide-react";
 import { SmartSearch } from "@/components/buildings/smart-search";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -429,9 +429,21 @@ export default function Home() {
             <SmartSearch
               variant="hero"
               placeholder="Search by building name or address..."
+              className="smart-search-hero"
             />
 
-            <p className="mt-5 text-sm text-white/60">
+            <button
+              onClick={() => {
+                document.querySelector<HTMLInputElement>('.smart-search-hero input')?.focus();
+              }}
+              className="mt-5 inline-flex items-center gap-2 px-6 py-3 bg-[#ebba48] hover:bg-[#d4a73d] text-[#1C1917] font-semibold rounded-xl transition-colors duration-200 shadow-lg shadow-black/20"
+              data-testid="btn-hero-cta"
+            >
+              <Search className="w-4 h-4" />
+              Find your building
+            </button>
+
+            <p className="mt-4 text-sm text-white/60">
               Try searching for{" "}
               <a
                 href="/search?q=The+Belnord"
