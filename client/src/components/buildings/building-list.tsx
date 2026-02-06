@@ -48,15 +48,15 @@ export function BuildingList({ buildings, isLoading }: BuildingListProps) {
           <Building2 className="h-10 w-10 text-[#ebba48]" />
         </div>
         <h3 className="font-serif text-2xl text-[#1C1917] dark:text-white mb-3">
-          No buildings found
+          This address hasn't been reviewed yet.
         </h3>
         <p className="text-[#57534E] dark:text-gray-400 mb-6 max-w-md mx-auto">
-          We couldn't find any buildings matching your search. Try a different query or be the first to add this building.
+          Be the first to share your experience.
         </p>
         <Link href="/add-building">
           <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 py-2.5 rounded-xl">
             <Plus className="mr-2 h-4 w-4" />
-            Add Building
+            Add a Review
           </Button>
         </Link>
       </div>
