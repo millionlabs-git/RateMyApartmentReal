@@ -141,6 +141,19 @@ export default function Home() {
           >
             Add a Review
           </a>
+          {isAuthenticated && (
+            <a
+              href="/my-reviews"
+              className={`hidden md:block text-sm font-medium transition-colors ${
+                scrolled
+                  ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+                  : "text-white/85 hover:text-white"
+              }`}
+              data-testid="link-my-reviews"
+            >
+              My Reviews
+            </a>
+          )}
 
           {/* Theme Toggle */}
           <div className="hidden md:block">

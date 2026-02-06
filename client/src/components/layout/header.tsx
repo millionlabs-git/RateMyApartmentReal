@@ -90,6 +90,20 @@ export function Header({ variant = "default" }: HeaderProps) {
             Add a Review
           </a>
         </Link>
+        {isAuthenticated && (
+          <Link href="/my-reviews">
+            <a
+              className={`hidden md:block text-sm font-medium transition-colors ${
+                isTransparent
+                  ? "text-white/85 hover:text-white"
+                  : "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+              }`}
+              data-testid="link-my-reviews"
+            >
+              My Reviews
+            </a>
+          </Link>
+        )}
 
         {/* Theme Toggle */}
         <div className="hidden md:block">
