@@ -469,7 +469,7 @@ export default function Home() {
               >
                 The Belnord
               </a>
-              {" "}or any NYC address
+              {" "}or any NYC address to see if it's been reviewed.
             </p>
           </div>
         </div>
