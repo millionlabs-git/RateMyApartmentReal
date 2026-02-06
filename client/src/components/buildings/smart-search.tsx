@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Search, MapPin, Building2, Star, Loader2 } from "lucide-react";
+import { Search, Building2, Star, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BuildingSuggestion {
@@ -11,13 +11,6 @@ interface BuildingSuggestion {
   neighborhood: string | null;
   averageRating: number | null;
   reviewCount: number;
-}
-
-interface PlacePrediction {
-  placeId: string;
-  description: string;
-  mainText: string;
-  secondaryText: string;
 }
 
 interface SmartSearchProps {
@@ -38,16 +31,15 @@ export function SmartSearch({
   const [, setLocation] = useLocation();
   const [query, setQuery] = useState(initialValue);
   const [buildings, setBuildings] = useState<BuildingSuggestion[]>([]);
-  const [places, setPlaces] = useState<PlacePrediction[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoadingBuildings, setIsLoadingBuildings] = useState(false);
-  const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
-  const totalItems = buildings.length + (places.length > 0 ? places.length + 1 : 0); // +1 for section header
+  const showSearchOption = query.length >= 2;
+  const totalItems = buildings.length + (showSearchOption ? 1 : 0);
 
   const fetchBuildings = useCallback(async (search: string) => {
     if (search.length < 2) {
@@ -69,26 +61,6 @@ export function SmartSearch({
     }
   }, []);
 
-  const fetchPlaces = useCallback(async (search: string) => {
-    if (search.length < 3) {
-      setPlaces([]);
-      return;
-    }
-
-    setIsLoadingPlaces(true);
-    try {
-      const res = await fetch(`/api/places/autocomplete?query=${encodeURIComponent(search)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setPlaces(data.data || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch place suggestions:", error);
-    } finally {
-      setIsLoadingPlaces(false);
-    }
-  }, []);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setQuery(newValue);
@@ -100,7 +72,6 @@ export function SmartSearch({
 
     debounceRef.current = setTimeout(() => {
       fetchBuildings(newValue);
-      fetchPlaces(newValue);
     }, 300);
 
     if (newValue.length >= 2) {
@@ -114,23 +85,19 @@ export function SmartSearch({
     setIsOpen(false);
     setQuery("");
     setBuildings([]);
-    setPlaces([]);
     setLocation(`/building/${building.id}`);
   };
 
-  const handlePlaceSelect = async (place: PlacePrediction) => {
+  const handleSearchNewAddress = () => {
     setIsOpen(false);
-
-    // Navigate to search results with the address
+    const trimmed = query.trim();
     if (onSearch) {
-      onSearch(place.mainText);
+      onSearch(trimmed);
     } else {
-      setLocation(`/search?q=${encodeURIComponent(place.mainText)}`);
+      setLocation(`/search?q=${encodeURIComponent(trimmed)}`);
     }
-
     setQuery("");
     setBuildings([]);
-    setPlaces([]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -153,43 +120,28 @@ export function SmartSearch({
       return;
     }
 
-    const buildingsCount = buildings.length;
-    const hasPlaces = places.length > 0;
-    const placesStartIndex = buildingsCount + (hasPlaces ? 1 : 0); // +1 for section header
-
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
         setHighlightedIndex((prev) => {
-          let next = prev + 1;
-          // Skip the section header
-          if (hasPlaces && next === buildingsCount) {
-            next = buildingsCount + 1;
-          }
+          const next = prev + 1;
           return next < totalItems ? next : prev;
         });
         break;
       case "ArrowUp":
         e.preventDefault();
         setHighlightedIndex((prev) => {
-          let next = prev - 1;
-          // Skip the section header
-          if (hasPlaces && next === buildingsCount) {
-            next = buildingsCount - 1;
-          }
+          const next = prev - 1;
           return next >= 0 ? next : -1;
         });
         break;
       case "Enter":
         e.preventDefault();
         if (highlightedIndex >= 0) {
-          if (highlightedIndex < buildingsCount) {
+          if (highlightedIndex < buildings.length) {
             handleBuildingSelect(buildings[highlightedIndex]);
-          } else if (highlightedIndex > buildingsCount) {
-            const placeIndex = highlightedIndex - placesStartIndex;
-            if (placeIndex >= 0 && placeIndex < places.length) {
-              handlePlaceSelect(places[placeIndex]);
-            }
+          } else if (highlightedIndex === buildings.length && showSearchOption) {
+            handleSearchNewAddress();
           }
         } else if (query.trim()) {
           handleSubmit(e);
@@ -229,8 +181,8 @@ export function SmartSearch({
     setQuery(initialValue);
   }, [initialValue]);
 
-  const isLoading = isLoadingBuildings || isLoadingPlaces;
-  const hasResults = buildings.length > 0 || places.length > 0;
+  const isLoading = isLoadingBuildings;
+  const hasResults = buildings.length > 0 || showSearchOption;
 
   const isHero = variant === "hero";
 
@@ -300,7 +252,8 @@ export function SmartSearch({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium text-gray-900 dark:text-white truncate">
-                        {building.name}
+                        {building.address}
+                        {building.borough && ` \u2013 ${building.borough}`}
                       </span>
                       {building.averageRating !== null && (
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -309,14 +262,13 @@ export function SmartSearch({
                             {building.averageRating.toFixed(1)}
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            ({building.reviewCount})
+                            ({building.reviewCount} {building.reviewCount === 1 ? "review" : "reviews"})
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                      {building.address}
-                      {building.borough && ` · ${building.borough}`}
+                      {building.name}
                     </div>
                   </div>
                 </button>
@@ -324,40 +276,24 @@ export function SmartSearch({
             </div>
           )}
 
-          {/* Google Places Section */}
-          {places.length > 0 && (
-            <div>
-              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
-                Search New Address
+          {/* Search New Address Option */}
+          {showSearchOption && (
+            <button
+              type="button"
+              onClick={handleSearchNewAddress}
+              className={cn(
+                "w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors",
+                buildings.length > 0 && "border-t border-gray-100 dark:border-gray-700",
+                highlightedIndex === buildings.length && "bg-gray-50 dark:bg-gray-700/50"
+              )}
+            >
+              <div className="flex-shrink-0 h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <Search className="w-4 h-4 text-gray-400" />
               </div>
-              {places.map((place, index) => {
-                const actualIndex = buildings.length + 1 + index; // +1 for section header
-                return (
-                  <button
-                    key={place.placeId}
-                    type="button"
-                    onClick={() => handlePlaceSelect(place)}
-                    className={cn(
-                      "w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors",
-                      actualIndex === highlightedIndex && "bg-gray-50 dark:bg-gray-700/50",
-                      index !== places.length - 1 && "border-b border-gray-100 dark:border-gray-700/50"
-                    )}
-                  >
-                    <div className="flex-shrink-0 h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center mt-0.5">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-white truncate">
-                        {place.mainText}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                        {place.secondaryText}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+              <span className="text-gray-700 dark:text-gray-300 truncate">
+                Search new address: <span className="font-medium text-gray-900 dark:text-white">{query}</span>
+              </span>
+            </button>
           )}
         </div>
       )}
