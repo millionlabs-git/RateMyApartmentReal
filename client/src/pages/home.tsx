@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Menu, User, LogOut, Shield, Settings } from "lucide-react";
+import { Menu, User, LogOut, Shield, Settings, FileText } from "lucide-react";
 import { SmartSearch } from "@/components/buildings/smart-search";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -185,6 +185,14 @@ export default function Home() {
                   </>
                 )}
                 <DropdownMenuItem asChild>
+                  <Link href="/my-reviews">
+                    <a className="flex items-center gap-2 w-full">
+                      <FileText className="w-4 h-4" />
+                      My Reviews
+                    </a>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/settings">
                     <a className="flex items-center gap-2 w-full">
                       <Settings className="w-4 h-4" />
@@ -258,6 +266,14 @@ export default function Home() {
                         Admin Dashboard
                       </a>
                     )}
+                    <a
+                      href="/my-reviews"
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FileText className="w-5 h-5" />
+                      My Reviews
+                    </a>
                     <a
                       href="/settings"
                       className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
