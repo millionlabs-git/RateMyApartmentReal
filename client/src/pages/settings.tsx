@@ -2,7 +2,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { DisplayNameForm } from "@/components/settings/display-name-form";
 import { EmailChangeForm } from "@/components/settings/email-change-form";
 import { PasswordChangeForm } from "@/components/settings/password-change-form";
-import { MyReviews } from "@/components/settings/my-reviews";
 import { NotificationPreferences } from "@/components/settings/notification-preferences";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,18 +79,6 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <PasswordChangeForm />
-            </CardContent>
-          </Card>
-
-          <Card liquid>
-            <CardHeader>
-              <CardTitle className="text-xl">My Reviews</CardTitle>
-              <CardDescription>
-                View all the reviews you've submitted.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MyReviews />
             </CardContent>
           </Card>
 

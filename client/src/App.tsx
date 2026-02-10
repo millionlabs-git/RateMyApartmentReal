@@ -21,6 +21,7 @@ import Signup from "@/pages/signup";
 import Login from "@/pages/login";
 import ResetPassword from "@/pages/reset-password";
 import Settings from "@/pages/settings";
+import MyReviews from "@/pages/my-reviews";
 import VerifyEmail from "@/pages/verify-email";
 import Search from "@/pages/search";
 import AddBuilding from "@/pages/add-building";
@@ -39,7 +40,6 @@ import AdminWaitlist from "@/pages/admin/waitlist";
 import AdminDuplicates from "@/pages/admin/duplicates";
 import DuplicateCompare from "@/pages/admin/duplicate-compare";
 import EarlyAccess from "@/pages/early-access";
-import MyReviews from "@/pages/my-reviews";
 
 function GuestRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
