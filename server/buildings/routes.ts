@@ -423,6 +423,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       geocodeLat: geocodeResult?.lat ?? null,
       geocodeLng: geocodeResult?.lng ?? null,
       status: "pending",
+      submittedBy: user.id,
     });
 
     // If user force-submitted a duplicate, add to duplicate queue for admin review

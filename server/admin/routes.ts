@@ -3,7 +3,13 @@ import crypto from "crypto";
 import { storage } from "../storage";
 import { type User } from "@shared/schema";
 import { detectAndQueueDuplicates } from "../services/duplicate-detection";
-import { sendReviewApprovedEmail, sendReviewRejectedEmail, sendPasswordResetEmail } from "../services/email";
+import {
+  sendReviewApprovedEmail,
+  sendReviewRejectedEmail,
+  sendBuildingApprovedEmail,
+  sendBuildingRejectedEmail,
+  sendPasswordResetEmail,
+} from "../services/email";
 
 const router = Router();
 
@@ -298,6 +304,9 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid status" });
     }
 
+    // Get building before updating to find submitter
+    const building = await storage.getBuilding(id);
+
     await storage.updateBuildingStatus(id, status);
 
     // Trigger duplicate detection on approval
@@ -305,6 +314,26 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
       detectAndQueueDuplicates(id).catch((err) =>
         console.error("Duplicate detection error:", err)
       );
+    }
+
+    // Send email notification to the user who submitted the building
+    if (building?.submittedBy) {
+      const submitter = await storage.getUser(building.submittedBy);
+      if (submitter?.emailNotifications) {
+        if (status === "approved") {
+          sendBuildingApprovedEmail({
+            email: submitter.email,
+            buildingName: building.name,
+            buildingAddress: building.address,
+            buildingId: building.id,
+          }).catch((err) => console.error("Failed to send building approved email:", err));
+        } else {
+          sendBuildingRejectedEmail({
+            email: submitter.email,
+            buildingName: building.name,
+          }).catch((err) => console.error("Failed to send building rejected email:", err));
+        }
+      }
     }
 
     return res.json({ message: "Building status updated" });
@@ -377,7 +406,35 @@ router.post("/buildings/bulk-action", async (req: Request, res: Response) => {
     }
 
     const status = action === "approve" ? "approved" : "denied";
+
+    // Get building details before updating for email notifications
+    const buildingDetails = await Promise.all(
+      ids.map((id) => storage.getBuilding(id))
+    );
+
     await storage.bulkUpdateBuildingStatus(ids, status);
+
+    // Send email notifications to submitters
+    for (const building of buildingDetails) {
+      if (!building?.submittedBy) continue;
+
+      const submitter = await storage.getUser(building.submittedBy);
+      if (!submitter?.emailNotifications) continue;
+
+      if (status === "approved") {
+        sendBuildingApprovedEmail({
+          email: submitter.email,
+          buildingName: building.name,
+          buildingAddress: building.address,
+          buildingId: building.id,
+        }).catch((err) => console.error("Failed to send building approved email:", err));
+      } else {
+        sendBuildingRejectedEmail({
+          email: submitter.email,
+          buildingName: building.name,
+        }).catch((err) => console.error("Failed to send building rejected email:", err));
+      }
+    }
 
     return res.json({ message: `${ids.length} buildings ${status}` });
   } catch (error) {

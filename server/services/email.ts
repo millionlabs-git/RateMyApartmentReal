@@ -32,12 +32,14 @@ type TemplateAlias = (typeof EMAIL_TEMPLATES)[keyof typeof EMAIL_TEMPLATES];
 
 interface SendTemplateEmailOptions {
   to: string;
+  from?: string;
   templateAlias: TemplateAlias;
   templateModel: Record<string, unknown>;
 }
 
 async function sendTemplateEmail({
   to,
+  from,
   templateAlias,
   templateModel,
 }: SendTemplateEmailOptions): Promise<boolean> {
@@ -58,7 +60,7 @@ async function sendTemplateEmail({
 
   try {
     await postmarkClient.sendEmailWithTemplate({
-      From: FROM_EMAIL,
+      From: from || FROM_EMAIL,
       To: to,
       TemplateAlias: templateAlias,
       TemplateModel: model,
@@ -173,11 +175,14 @@ export interface BuildingApprovedEmailData {
   buildingId: string;
 }
 
+const BUILDING_EMAIL_FROM = "admin@ratemyapartmentnyc.com";
+
 export async function sendBuildingApprovedEmail(data: BuildingApprovedEmailData): Promise<boolean> {
   const buildingUrl = `${APP_URL}/building/${data.buildingId}`;
 
   return sendTemplateEmail({
     to: data.email,
+    from: BUILDING_EMAIL_FROM,
     templateAlias: EMAIL_TEMPLATES.BUILDING_APPROVED,
     templateModel: {
       building_name: data.buildingName,
@@ -197,6 +202,7 @@ export interface BuildingRejectedEmailData {
 export async function sendBuildingRejectedEmail(data: BuildingRejectedEmailData): Promise<boolean> {
   return sendTemplateEmail({
     to: data.email,
+    from: BUILDING_EMAIL_FROM,
     templateAlias: EMAIL_TEMPLATES.BUILDING_REJECTED,
     templateModel: {
       building_name: data.buildingName,

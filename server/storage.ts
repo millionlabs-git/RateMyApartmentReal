@@ -148,6 +148,8 @@ export class MemStorage implements IStorage {
       displayName: null,
       role: "user",
       status: "active",
+      displayName: null,
+      emailVerified: false,
       emailNotifications: true,
       emailVerified: false,
       createdAt: new Date(),
@@ -344,6 +346,7 @@ export class MemStorage implements IStorage {
       geocodeLat: building.geocodeLat ?? null,
       geocodeLng: building.geocodeLng ?? null,
       status: building.status ?? "pending",
+      submittedBy: building.submittedBy ?? null,
       createdAt: new Date(),
     };
     this.buildings.set(id, newBuilding);
@@ -993,6 +996,8 @@ if (!process.env.DATABASE_URL && storage instanceof MemStorage) {
       displayName: null,
       role: "admin",
       status: "active",
+      displayName: null,
+      emailVerified: false,
       emailNotifications: true,
       createdAt: new Date(),
     };

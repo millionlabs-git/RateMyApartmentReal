@@ -13,6 +13,8 @@ export const users = pgTable("users", {
   displayName: text("display_name"),
   role: userRoleEnum("role").notNull().default("user"),
   status: userStatusEnum("status").notNull().default("active"),
+  displayName: text("display_name"),
+  emailVerified: boolean("email_verified").notNull().default(false),
   emailNotifications: boolean("email_notifications").notNull().default(true),
   emailVerified: boolean("email_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -99,6 +101,7 @@ export const buildings = pgTable("buildings", {
   geocodeLat: doublePrecision("geocode_lat"),
   geocodeLng: doublePrecision("geocode_lng"),
   status: buildingStatusEnum("status").notNull().default("pending"),
+  submittedBy: varchar("submitted_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -150,6 +153,16 @@ export const reviewPhotos = pgTable("review_photos", {
 });
 
 export type ReviewPhoto = typeof reviewPhotos.$inferSelect;
+
+// Review helpful votes schema
+export const reviewHelpfulVotes = pgTable("review_helpful_votes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  reviewId: varchar("review_id").notNull().references(() => reviews.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type ReviewHelpfulVote = typeof reviewHelpfulVotes.$inferSelect;
 
 // Duplicate queue schema
 export const duplicateStatusEnum = pgEnum("duplicate_status", ["pending", "merged", "dismissed"]);
