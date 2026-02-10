@@ -87,7 +87,7 @@ export function Header({ variant = "default" }: HeaderProps) {
             }`}
             data-testid="link-add-building"
           >
-            Add a Review
+            Add Residence
           </a>
         </Link>
         {isAuthenticated && (
@@ -222,7 +222,7 @@ export function Header({ variant = "default" }: HeaderProps) {
                   className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add a Review
+                  Add Residence
                 </a>
               </Link>
 

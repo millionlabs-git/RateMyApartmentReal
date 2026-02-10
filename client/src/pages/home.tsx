@@ -139,7 +139,7 @@ export default function Home() {
             }`}
             data-testid="link-add-building"
           >
-            Add a Review
+            Add Residence
           </a>
           {isAuthenticated && (
             <a
@@ -277,7 +277,7 @@ export default function Home() {
                   data-testid="mobile-link-add-building"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add a Review
+                  Add Residence
                 </a>
 
                 {isAuthenticated && user ? (

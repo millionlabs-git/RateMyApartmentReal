@@ -35,6 +35,9 @@ export interface IStorage {
   getEmailVerificationToken(token: string): Promise<EmailVerificationToken | undefined>;
   deleteEmailVerificationToken(tokenId: string): Promise<void>;
 
+  // Email verification
+  updateUserEmailVerified(userId: string, emailVerified: boolean): Promise<void>;
+
   // Building methods
   getBuilding(id: string): Promise<Building | undefined>;
   getBuildingWithStats(id: string): Promise<BuildingWithStats | undefined>;
@@ -146,6 +149,7 @@ export class MemStorage implements IStorage {
       role: "user",
       status: "active",
       emailNotifications: true,
+      emailVerified: false,
       createdAt: new Date(),
     };
     this.users.set(id, user);
