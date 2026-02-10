@@ -14,14 +14,8 @@ const BCRYPT_ROUNDS = 12;
 const TOKEN_EXPIRY_HOURS = 24;
 
 function getSafeUser(user: User): Omit<User, "passwordHash"> {
-  return {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-    emailNotifications: user.emailNotifications,
-    createdAt: user.createdAt,
-  };
+  const { passwordHash, ...safeUser } = user;
+  return safeUser;
 }
 
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
@@ -67,14 +61,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Account created but session failed" });
       }
 
-      const safeUser: Omit<User, "passwordHash"> = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        emailNotifications: user.emailNotifications,
-        createdAt: user.createdAt,
-      };
+      const { passwordHash: _, ...safeUser } = user;
 
       return res.status(201).json({ data: safeUser });
     });
