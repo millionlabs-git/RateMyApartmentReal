@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Search, Menu, User, LogOut, Shield } from "lucide-react";
+import { Search, Menu, User, LogOut, Shield, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -151,6 +151,20 @@ export default function Home() {
             Add Building
           </a>
 
+          {isAuthenticated && (
+            <a
+              href="/my-reviews"
+              className={`hidden md:block text-sm font-medium transition-colors ${
+                scrolled
+                  ? "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+                  : "text-white/85 hover:text-white"
+              }`}
+              data-testid="link-my-reviews"
+            >
+              My Reviews
+            </a>
+          )}
+
           {/* Theme Toggle */}
           <div className="hidden md:block">
             <ThemeToggle
@@ -255,6 +269,14 @@ export default function Home() {
 
                 {isAuthenticated && user ? (
                   <>
+                    <a
+                      href="/my-reviews"
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FileText className="w-5 h-5" />
+                      My Reviews
+                    </a>
                     {user.role === "admin" && (
                       <a
                         href="/admin"

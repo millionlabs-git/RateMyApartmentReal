@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, User, LogOut, Shield } from "lucide-react";
+import { Menu, User, LogOut, Shield, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -90,6 +90,21 @@ export function Header({ variant = "default" }: HeaderProps) {
             Add Building
           </a>
         </Link>
+
+        {isAuthenticated && (
+          <Link href="/my-reviews">
+            <a
+              className={`hidden md:block text-sm font-medium transition-colors ${
+                isTransparent
+                  ? "text-white/85 hover:text-white"
+                  : "text-[#57534E] hover:text-[#1C1917] dark:text-gray-400 dark:hover:text-white"
+              }`}
+              data-testid="link-my-reviews"
+            >
+              My Reviews
+            </a>
+          </Link>
+        )}
 
         {/* Theme Toggle */}
         <div className="hidden md:block">
@@ -183,6 +198,15 @@ export function Header({ variant = "default" }: HeaderProps) {
 
               {isAuthenticated && user ? (
                 <>
+                  <Link href="/my-reviews">
+                    <a
+                      className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors flex items-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <FileText className="w-5 h-5" />
+                      My Reviews
+                    </a>
+                  </Link>
                   {user.role === "admin" && (
                     <Link href="/admin">
                       <a

@@ -12,6 +12,7 @@ import Signup from "@/pages/signup";
 import Login from "@/pages/login";
 import ResetPassword from "@/pages/reset-password";
 import Settings from "@/pages/settings";
+import MyReviewsPage from "@/pages/my-reviews";
 import VerifyEmail from "@/pages/verify-email";
 import Search from "@/pages/search";
 import AddBuilding from "@/pages/add-building";
@@ -73,6 +74,9 @@ function Router() {
       <Route path="/reset-password/:token" component={ResetPassword} />
       <Route path="/settings">
         {() => <ProtectedRoute component={Settings} />}
+      </Route>
+      <Route path="/my-reviews">
+        {() => <ProtectedRoute component={MyReviewsPage} />}
       </Route>
       <Route path="/verify-email/:token" component={VerifyEmail} />
       <Route path="/forbidden" component={Forbidden} />
