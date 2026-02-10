@@ -13,8 +13,6 @@ export const users = pgTable("users", {
   displayName: text("display_name"),
   role: userRoleEnum("role").notNull().default("user"),
   status: userStatusEnum("status").notNull().default("active"),
-  displayName: text("display_name"),
-  emailVerified: boolean("email_verified").notNull().default(false),
   emailNotifications: boolean("email_notifications").notNull().default(true),
   emailVerified: boolean("email_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -199,13 +197,3 @@ export const waitlist = pgTable("waitlist", {
 
 export type WaitlistEntry = typeof waitlist.$inferSelect;
 export type InsertWaitlistEntry = typeof waitlist.$inferInsert;
-
-// Review helpful votes schema
-export const reviewHelpfulVotes = pgTable("review_helpful_votes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  reviewId: varchar("review_id").notNull().references(() => reviews.id, { onDelete: "cascade" }),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export type ReviewHelpfulVote = typeof reviewHelpfulVotes.$inferSelect;

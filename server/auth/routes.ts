@@ -4,7 +4,7 @@ import crypto from "crypto";
 import passport from "passport";
 import { signupSchema, resetPasswordSchema, type User } from "@shared/schema";
 import { storage } from "../storage";
-import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/email";
+import { sendWelcomeEmail, sendPasswordResetEmail, sendEmailVerificationEmail } from "../services/email";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -53,6 +53,14 @@ router.post("/signup", async (req: Request, res: Response) => {
 
     sendWelcomeEmail({ email: user.email }).catch((err) => {
       console.error("Failed to send welcome email:", err);
+    });
+
+    // Send email verification
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpiresAt = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+    await storage.createEmailVerificationToken(user.id, user.email, verificationToken, verificationExpiresAt);
+    sendEmailVerificationEmail({ email: user.email, token: verificationToken }).catch((err) => {
+      console.error("Failed to send email verification:", err);
     });
 
     req.login(user, (err) => {
@@ -188,6 +196,60 @@ router.post("/reset-password", async (req: Request, res: Response) => {
     }
 
     console.error("Reset password error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Verify email for signup (not email change)
+router.get("/verify-email/:token", async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+
+    const verificationToken = await storage.getEmailVerificationToken(token);
+
+    if (!verificationToken) {
+      return res.status(400).json({ message: "Invalid or expired verification link", valid: false });
+    }
+
+    if (new Date() > verificationToken.expiresAt) {
+      return res.status(400).json({ message: "This verification link has expired", valid: false });
+    }
+
+    await storage.updateUserEmailVerified(verificationToken.userId, true);
+    await storage.deleteEmailVerificationToken(verificationToken.id);
+
+    return res.json({ data: { verified: true } });
+  } catch (error) {
+    console.error("Verify email error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Resend verification email
+router.post("/resend-verification", async (req: Request, res: Response) => {
+  try {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = req.user as User;
+
+    if (user.emailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    await storage.createEmailVerificationToken(user.id, user.email, token, expiresAt);
+
+    sendEmailVerificationEmail({ email: user.email, token }).catch((err) => {
+      console.error("Failed to send email verification:", err);
+    });
+
+    return res.json({ data: { message: "Verification email sent" } });
+  } catch (error) {
+    console.error("Resend verification error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

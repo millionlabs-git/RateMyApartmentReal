@@ -291,6 +291,10 @@ export class DatabaseStorage implements IStorage {
     await this.db.insert(reviewPhotos).values(photoValues);
   }
 
+  async updateUserEmailVerified(userId: string, emailVerified: boolean): Promise<void> {
+    await this.db.update(users).set({ emailVerified }).where(eq(users.id, userId));
+  }
+
   async updateUserNotifications(userId: string, emailNotifications: boolean): Promise<void> {
     await this.db.update(users).set({ emailNotifications }).where(eq(users.id, userId));
   }

@@ -239,6 +239,11 @@ router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => 
       return res.status(403).json({ message: "Your account has been suspended" });
     }
 
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(403).json({ message: "Please verify your email before submitting a review", code: "EMAIL_NOT_VERIFIED" });
+    }
+
     // Check if building exists
     const building = await storage.getBuilding(id);
     if (!building || building.status !== "approved") {
@@ -339,6 +344,11 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     // Check if user is suspended
     if (user.status === "suspended") {
       return res.status(403).json({ message: "Your account has been suspended" });
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(403).json({ message: "Please verify your email before adding a building", code: "EMAIL_NOT_VERIFIED" });
     }
 
     const validatedData = createBuildingSchema.parse(req.body);

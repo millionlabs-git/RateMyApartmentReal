@@ -80,6 +80,7 @@ router.get("/verify-email/:token", async (req: Request, res: Response) => {
     }
 
     await storage.updateUserEmail(verificationToken.userId, verificationToken.newEmail);
+    await storage.updateUserEmailVerified(verificationToken.userId, true);
     await storage.deleteEmailVerificationToken(verificationToken.id);
 
     return res.json({ data: { message: "Email updated successfully", newEmail: verificationToken.newEmail } });

@@ -8,6 +8,7 @@ interface User {
   role: "user" | "admin";
   status: "active" | "suspended";
   emailNotifications: boolean;
+  emailVerified: boolean;
   createdAt: string;
 }
 

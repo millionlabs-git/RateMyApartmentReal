@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
-import { Building2, CheckCircle, AlertTriangle } from "lucide-react";
+import { Building2, CheckCircle, AlertTriangle, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { EmailVerificationModal } from "@/components/email-verification-modal";
 import { BuildingForm, type BuildingFormValues } from "@/components/buildings/building-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export default function AddBuildingPage() {
   const [matchType, setMatchType] = useState<"exact" | "address" | null>(null);
   const [pendingData, setPendingData] = useState<BuildingFormValues | null>(null);
   const [formKey, setFormKey] = useState(0);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   const createMutation = useMutation({
     mutationFn: async (data: BuildingFormValues & { forceSubmit?: boolean }) => {
@@ -52,6 +54,9 @@ export default function AddBuildingPage() {
       });
       const responseData = await res.json();
       if (!res.ok) {
+        if (res.status === 403 && responseData.code === "EMAIL_NOT_VERIFIED") {
+          throw { type: "emailNotVerified" };
+        }
         if (res.status === 409 && responseData.exactMatch) {
           throw { type: "exactMatch", existingBuilding: responseData.existingBuilding };
         }
@@ -69,6 +74,10 @@ export default function AddBuildingPage() {
       setSuccessBuilding(response.data);
     },
     onError: (error: any) => {
+      if (error.type === "emailNotVerified") {
+        setShowVerificationModal(true);
+        return;
+      }
       if (error.type === "exactMatch") {
         setExistingBuilding(error.existingBuilding);
         setMatchType("exact");
@@ -86,6 +95,10 @@ export default function AddBuildingPage() {
   });
 
   const handleSubmit = (data: BuildingFormValues) => {
+    if (user && !user.emailVerified) {
+      setShowVerificationModal(true);
+      return;
+    }
     // Clean up borough (not stored in DB) and "not_sure" neighborhood
     const { borough, ...submitData } = data;
     if (submitData.neighborhood === "not_sure") {
@@ -197,6 +210,15 @@ export default function AddBuildingPage() {
 
         {/* Form section */}
         <div className="flex-1 max-w-3xl w-full mx-auto space-y-6">
+          {user && !user.emailVerified && (
+            <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4">
+              <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Please verify your email address before adding a residence. Check your inbox for a verification link.
+              </p>
+            </div>
+          )}
+
           <Card liquid className="w-full">
             <CardHeader>
               <CardTitle className="text-xl">Residence Details</CardTitle>
@@ -307,6 +329,11 @@ export default function AddBuildingPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <EmailVerificationModal
+        open={showVerificationModal}
+        onOpenChange={setShowVerificationModal}
+      />
     </Layout>
   );
 }

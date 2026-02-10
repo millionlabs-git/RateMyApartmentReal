@@ -12,23 +12,33 @@ export default function VerifyEmailPage() {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/user/verify-email", token],
+    queryKey: ["/api/verify-email", token],
     queryFn: async () => {
-      const res = await fetch(`/api/user/verify-email/${token}`);
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || "Verification failed");
+      // Try signup verification first
+      const signupRes = await fetch(`/api/auth/verify-email/${token}`);
+      if (signupRes.ok) {
+        const signupData = await signupRes.json();
+        return { ...signupData, flow: "signup" as const };
       }
-      return data;
+
+      // Fall back to email change verification
+      const changeRes = await fetch(`/api/user/verify-email/${token}`);
+      const changeData = await changeRes.json();
+      if (!changeRes.ok) {
+        throw new Error(changeData.message || "Verification failed");
+      }
+      return { ...changeData, flow: "email-change" as const };
     },
     retry: false,
   });
 
   useEffect(() => {
-    if (data?.data?.newEmail) {
+    if (data) {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     }
   }, [data, queryClient]);
+
+  const isEmailChange = data?.flow === "email-change";
 
   if (isLoading) {
     return (
@@ -100,10 +110,10 @@ export default function VerifyEmailPage() {
         <div className="bg-gradient-to-b from-[#1C1917] to-[#292524] -mt-6 pt-6 pb-16 px-4">
           <div className="max-w-md mx-auto text-center">
             <h1 className="font-serif text-3xl md:text-4xl text-white mb-2">
-              Email Verified!
+              {isEmailChange ? "Email Updated!" : "Email Verified!"}
             </h1>
             <p className="text-white/70">
-              Your email has been updated
+              {isEmailChange ? "Your email has been updated" : "Your email has been verified"}
             </p>
           </div>
         </div>
@@ -114,14 +124,16 @@ export default function VerifyEmailPage() {
                 <CheckCircle className="h-8 w-8 text-green-500" />
               </div>
               <h2 className="font-serif text-xl text-[#1C1917] dark:text-white mb-3">
-                Email Verified!
+                {isEmailChange ? "Email Updated!" : "Email Verified!"}
               </h2>
               <p className="text-[#57534E] dark:text-gray-400 mb-6">
-                Your email has been updated to {data?.data?.newEmail}
+                {isEmailChange
+                  ? `Your email has been updated to ${data?.data?.newEmail}`
+                  : "Your email has been verified. You can now submit reviews and add buildings."}
               </p>
-              <Link href="/settings">
+              <Link href={isEmailChange ? "/settings" : "/search"}>
                 <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 rounded-xl">
-                  Go to Settings
+                  {isEmailChange ? "Go to Settings" : "Browse Buildings"}
                 </Button>
               </Link>
             </CardContent>

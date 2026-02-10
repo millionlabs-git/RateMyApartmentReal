@@ -1,8 +1,9 @@
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Building2, Mail } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { EmailVerificationModal } from "@/components/email-verification-modal";
 import { ReviewForm, type ReviewFormValues } from "@/components/reviews/review-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +23,7 @@ export default function AddReviewPage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [success, setSuccess] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   const { data: buildingData, isLoading: buildingLoading } = useQuery<{ data: Building }>({
     queryKey: ["building", id],
@@ -38,14 +40,20 @@ export default function AddReviewPage() {
       const res = await apiRequest("POST", `/api/buildings/${id}/reviews`, data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to submit review");
+        const err = new Error(errorData.message || "Failed to submit review");
+        (err as any).code = errorData.code;
+        throw err;
       }
       return res.json();
     },
     onSuccess: () => {
       setSuccess(true);
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      if (error.code === "EMAIL_NOT_VERIFIED") {
+        setShowVerificationModal(true);
+        return;
+      }
       toast({
         variant: "destructive",
         title: "Error",
@@ -55,6 +63,10 @@ export default function AddReviewPage() {
   });
 
   const handleSubmit = (data: ReviewFormValues) => {
+    if (user && !user.emailVerified) {
+      setShowVerificationModal(true);
+      return;
+    }
     createReviewMutation.mutate(data);
   };
 
@@ -237,6 +249,15 @@ export default function AddReviewPage() {
       {/* Form section */}
       <div className="py-8 px-4">
         <div className="max-w-xl mx-auto space-y-6">
+          {user && !user.emailVerified && (
+            <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4">
+              <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Please verify your email address before submitting a review. Check your inbox for a verification link.
+              </p>
+            </div>
+          )}
+
           <Card liquid>
             <CardContent className="pt-6">
               <p className="text-sm text-[#57534E] dark:text-gray-400 uppercase tracking-wide mb-1">
@@ -255,6 +276,11 @@ export default function AddReviewPage() {
           />
         </div>
       </div>
+
+      <EmailVerificationModal
+        open={showVerificationModal}
+        onOpenChange={setShowVerificationModal}
+      />
     </Layout>
   );
 }

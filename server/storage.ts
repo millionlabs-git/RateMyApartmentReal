@@ -148,8 +148,6 @@ export class MemStorage implements IStorage {
       displayName: null,
       role: "user",
       status: "active",
-      displayName: null,
-      emailVerified: false,
       emailNotifications: true,
       emailVerified: false,
       createdAt: new Date(),
@@ -461,6 +459,14 @@ export class MemStorage implements IStorage {
         createdAt: new Date(),
       };
       this.reviewPhotos.set(id, photo);
+    }
+  }
+
+  async updateUserEmailVerified(userId: string, emailVerified: boolean): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.emailVerified = emailVerified;
+      this.users.set(userId, user);
     }
   }
 
@@ -996,9 +1002,8 @@ if (!process.env.DATABASE_URL && storage instanceof MemStorage) {
       displayName: null,
       role: "admin",
       status: "active",
-      displayName: null,
-      emailVerified: false,
       emailNotifications: true,
+      emailVerified: true,
       createdAt: new Date(),
     };
     storage.seedUser(adminUser);
