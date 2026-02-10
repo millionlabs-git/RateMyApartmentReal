@@ -58,7 +58,7 @@ export default function AddBuildingPage() {
         if (res.status === 409 && responseData.addressMatch) {
           throw { type: "addressMatch", existingBuilding: responseData.existingBuilding };
         }
-        throw new Error(responseData.message || "Failed to submit building");
+        throw new Error(responseData.message || "Failed to submit residence");
       }
       return responseData;
     },
@@ -79,7 +79,7 @@ export default function AddBuildingPage() {
         toast({
           variant: "destructive",
           title: "Error",
-          description: error.message || "Failed to submit building. Please try again.",
+          description: error.message || "Failed to submit residence. Please try again.",
         });
       }
     },
@@ -137,7 +137,7 @@ export default function AddBuildingPage() {
           {/* Hero section */}
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h1 className="font-serif text-4xl md:text-5xl text-white mb-3">
-              Add a Building
+              Add a Residence
             </h1>
             <p className="text-white/70 text-lg">
               Sign in to contribute to the community
@@ -153,7 +153,7 @@ export default function AddBuildingPage() {
                 </div>
                 <CardTitle className="font-serif text-xl">Sign in Required</CardTitle>
                 <CardDescription>
-                  You need to be signed in to add a building.
+                  You need to be signed in to add a residence.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center gap-4 pb-8">
@@ -179,10 +179,10 @@ export default function AddBuildingPage() {
         {/* Hero section */}
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h1 className="font-serif text-4xl md:text-5xl text-white mb-3">
-            Add a Building
+            Add a Residence
           </h1>
           <p className="text-white/70 text-lg">
-            Can't find your building? Add it so you and others can review it.
+            Can't find your residence? Add it so you and others can review it.
           </p>
         </div>
 
@@ -190,9 +190,9 @@ export default function AddBuildingPage() {
         <div className="flex-1 max-w-3xl w-full mx-auto space-y-6">
           <Card liquid className="w-full">
             <CardHeader>
-              <CardTitle className="text-xl">Building Details</CardTitle>
+              <CardTitle className="text-xl">Residence Details</CardTitle>
               <CardDescription>
-                Enter the building information. All buildings are reviewed by our team before being published.
+                Enter the residence information. All residences are reviewed by our team before being published.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -214,12 +214,12 @@ export default function AddBuildingPage() {
               <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <DialogTitle className="text-center">
-              {matchType === "exact" ? "Building Already Exists" : "Address Already Listed"}
+              {matchType === "exact" ? "Residence Already Exists" : "Address Already Listed"}
             </DialogTitle>
             <DialogDescription className="text-center">
               {matchType === "exact"
-                ? "A building with this exact name and address already exists in our database."
-                : "A building at this address already exists in our database with a different name."}
+                ? "A residence with this exact name and address already exists in our database."
+                : "A residence at this address already exists in our database with a different name."}
             </DialogDescription>
           </DialogHeader>
 
@@ -244,7 +244,7 @@ export default function AddBuildingPage() {
               onClick={handleViewExisting}
               className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
             >
-              View Existing Building
+              View Existing Residence
             </Button>
             <Button
               variant="outline"
@@ -252,7 +252,7 @@ export default function AddBuildingPage() {
               disabled={createMutation.isPending}
               className="w-full"
             >
-              {createMutation.isPending ? "Submitting..." : "Submit Anyway (Different Building)"}
+              {createMutation.isPending ? "Submitting..." : "Submit Anyway (Different Residence)"}
             </Button>
             <Button
               variant="ghost"
@@ -272,9 +272,9 @@ export default function AddBuildingPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
               <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-            <DialogTitle className="text-center">Building Submitted!</DialogTitle>
+            <DialogTitle className="text-center">Residence Submitted!</DialogTitle>
             <DialogDescription className="text-center">
-              Your building "{successBuilding?.name}" has been submitted for review.
+              Your residence "{successBuilding?.name}" has been submitted for review.
               Our team will review it shortly.
             </DialogDescription>
           </DialogHeader>
@@ -283,7 +283,7 @@ export default function AddBuildingPage() {
               onClick={handleCloseSuccess}
               className="w-full bg-[#ebba48] hover:bg-[#C49A3C] text-white"
             >
-              Browse Buildings
+              Browse Residences
             </Button>
             <Button
               variant="outline"
@@ -293,7 +293,7 @@ export default function AddBuildingPage() {
               }}
               className="w-full"
             >
-              Add Another Building
+              Add Another Residence
             </Button>
           </DialogFooter>
         </DialogContent>

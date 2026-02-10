@@ -148,7 +148,7 @@ export default function Home() {
             }`}
             data-testid="link-add-building"
           >
-            Add Building
+            Add Residence
           </a>
 
           {/* Theme Toggle */}
@@ -250,7 +250,7 @@ export default function Home() {
                   data-testid="mobile-link-add-building"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add Building
+                  Add Residence
                 </a>
 
                 {isAuthenticated && user ? (

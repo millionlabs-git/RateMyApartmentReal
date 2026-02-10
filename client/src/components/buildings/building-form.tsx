@@ -22,7 +22,7 @@ import {
 import { isValidNYCZip, NYC_NEIGHBORHOODS, BUILDING_TYPES } from "@/lib/validation";
 
 const buildingFormSchema = z.object({
-  name: z.string().min(1, "Building name is required").max(255),
+  name: z.string().max(255),
   address: z.string().min(1, "Address is required").max(255),
   zip: z.string().length(5, "ZIP code must be 5 digits").refine(isValidNYCZip, {
     message: "Please enter a valid NYC ZIP code",
@@ -60,10 +60,10 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Building Name *</FormLabel>
+              <FormLabel>Residence Name (Optional)</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., The Belnord"
+                  placeholder="e.g., The Belnord, Sunset Towers"
                   className="bg-white dark:bg-gray-800 border-[#E7E5E4]"
                   {...field}
                 />
@@ -204,7 +204,7 @@ export function BuildingForm({ onSubmit, isSubmitting }: BuildingFormProps) {
           className="w-full bg-[#1C1917] hover:bg-[#292524] text-white"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Submitting..." : "Submit Building"}
+          {isSubmitting ? "Submitting..." : "Submit Residence"}
         </Button>
       </form>
     </Form>

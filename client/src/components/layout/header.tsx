@@ -87,7 +87,7 @@ export function Header({ variant = "default" }: HeaderProps) {
             }`}
             data-testid="link-add-building"
           >
-            Add Building
+            Add Residence
           </a>
         </Link>
 
@@ -177,7 +177,7 @@ export function Header({ variant = "default" }: HeaderProps) {
                   className="text-lg font-medium text-[#1C1917] dark:text-white hover:text-[#ebba48] transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Add Building
+                  Add Residence
                 </a>
               </Link>
 
