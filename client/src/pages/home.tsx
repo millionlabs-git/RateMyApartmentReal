@@ -254,7 +254,7 @@ export default function Home() {
                 size="icon"
                 variant="ghost"
                 className={`md:hidden ${
-                  scrolled ? "text-[#1C1917]" : "text-white"
+                  scrolled ? "text-[#1C1917] dark:text-white" : "text-white"
                 }`}
                 data-testid="button-mobile-menu"
               >
