@@ -159,10 +159,10 @@ export default function AddBuildingPage() {
           {/* Hero section */}
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h1 className="font-serif text-4xl md:text-5xl text-white mb-3">
-              Add a Residence
+              Can't find your building?
             </h1>
             <p className="text-white/70 text-lg">
-              Sign in to contribute to the community
+              To protect renters and prevent abuse, adding buildings requires an account.
             </p>
           </div>
 
@@ -178,15 +178,20 @@ export default function AddBuildingPage() {
                   You need to be signed in to add a residence.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center gap-4 pb-8">
-                <Link href="/login">
-                  <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 rounded-xl">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button variant="outline" className="rounded-xl">Create Account</Button>
-                </Link>
+              <CardContent className="flex flex-col items-center gap-4 pb-8">
+                <div className="flex justify-center gap-4">
+                  <Link href="/login">
+                    <Button className="bg-[#ebba48] hover:bg-[#C49A3C] text-white px-6 rounded-xl">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button variant="outline" className="rounded-xl">Create Account</Button>
+                  </Link>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Your name and email are never shown publicly.
+                </p>
               </CardContent>
             </Card>
           </div>
