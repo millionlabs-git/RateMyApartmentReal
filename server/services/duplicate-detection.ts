@@ -126,8 +126,8 @@ export function calculateSimilarityScore(
   const addressScore = stringSimilarity(normalizedAddr1, normalizedAddr2);
 
   // Name similarity
-  const normalizedName1 = building1.name.toLowerCase().trim();
-  const normalizedName2 = building2.name.toLowerCase().trim();
+  const normalizedName1 = (building1.name || "").toLowerCase().trim();
+  const normalizedName2 = (building2.name || "").toLowerCase().trim();
   const nameScore = stringSimilarity(normalizedName1, normalizedName2);
 
   // Weighted combination: distance 50%, address 30%, name 20%
@@ -154,7 +154,8 @@ export interface ExactMatch {
 }
 
 // Normalize building name for comparison
-function normalizeName(name: string): string {
+function normalizeName(name: string | null): string {
+  if (!name) return "";
   return name
     .toLowerCase()
     .replace(/[^\w\s]/g, "")
@@ -275,7 +276,7 @@ export async function detectAndQueueDuplicates(buildingId: string): Promise<numb
   const allBuildings = await storage.getAllApprovedBuildings();
   let entriesCreated = 0;
 
-  const normalizedBuildingName = building.name.toLowerCase().trim();
+  const normalizedBuildingName = (building.name || "").toLowerCase().trim();
   const normalizedBuildingAddr = normalizeAddress(building.address);
 
   for (const otherBuilding of allBuildings) {
@@ -285,15 +286,18 @@ export async function detectAndQueueDuplicates(buildingId: string): Promise<numb
     const otherHasGeocode = otherBuilding.geocodeLat !== null && otherBuilding.geocodeLng !== null;
 
     // Check name similarity (catches same-name buildings regardless of location)
-    const normalizedOtherName = otherBuilding.name.toLowerCase().trim();
+    const normalizedOtherName = (otherBuilding.name || "").toLowerCase().trim();
     const nameScore = stringSimilarity(normalizedBuildingName, normalizedOtherName);
 
     // Check address similarity (catches same-address buildings regardless of geocode)
     const normalizedOtherAddr = normalizeAddress(otherBuilding.address);
     const addrScore = stringSimilarity(normalizedBuildingAddr, normalizedOtherAddr);
 
+    // Skip name similarity when both names are empty (avoids false positives)
+    const nameMatch = normalizedBuildingName && normalizedOtherName && nameScore >= NAME_SIMILARITY_THRESHOLD;
+
     // Path 1: High name or address similarity alone warrants a queue entry
-    if (nameScore >= NAME_SIMILARITY_THRESHOLD || addrScore >= ADDRESS_SIMILARITY_THRESHOLD_SCORE) {
+    if (nameMatch || addrScore >= ADDRESS_SIMILARITY_THRESHOLD_SCORE) {
       const score = Math.max(nameScore, addrScore);
       const created = await storage.createDuplicateQueueEntry(
         buildingId,

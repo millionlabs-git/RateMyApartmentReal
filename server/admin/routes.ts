@@ -158,7 +158,7 @@ router.patch("/reviews/:id/status", async (req: Request, res: Response) => {
       if (status === "approved" && building) {
         sendReviewApprovedEmail({
           email: review.userEmail,
-          buildingName: building.name,
+          buildingName: building.name || building.address,
           buildingAddress: building.address,
           buildingId: building.id,
         }).catch(err => console.error("Failed to send review approved email:", err));
@@ -323,14 +323,14 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
         if (status === "approved") {
           sendBuildingApprovedEmail({
             email: submitter.email,
-            buildingName: building.name,
+            buildingName: building.name || building.address,
             buildingAddress: building.address,
             buildingId: building.id,
           }).catch((err) => console.error("Failed to send building approved email:", err));
         } else {
           sendBuildingRejectedEmail({
             email: submitter.email,
-            buildingName: building.name,
+            buildingName: building.name || building.address,
           }).catch((err) => console.error("Failed to send building rejected email:", err));
         }
       }
@@ -373,7 +373,7 @@ router.post("/reviews/bulk-action", async (req: Request, res: Response) => {
       if (status === "approved" && building) {
         sendReviewApprovedEmail({
           email: review.userEmail,
-          buildingName: building.name,
+          buildingName: building.name || building.address,
           buildingAddress: building.address,
           buildingId: building.id,
         }).catch(err => console.error("Failed to send review approved email:", err));
@@ -424,14 +424,14 @@ router.post("/buildings/bulk-action", async (req: Request, res: Response) => {
       if (status === "approved") {
         sendBuildingApprovedEmail({
           email: submitter.email,
-          buildingName: building.name,
+          buildingName: building.name || building.address,
           buildingAddress: building.address,
           buildingId: building.id,
         }).catch((err) => console.error("Failed to send building approved email:", err));
       } else {
         sendBuildingRejectedEmail({
           email: submitter.email,
-          buildingName: building.name,
+          buildingName: building.name || building.address,
         }).catch((err) => console.error("Failed to send building rejected email:", err));
       }
     }

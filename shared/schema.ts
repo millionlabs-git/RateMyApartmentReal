@@ -89,7 +89,7 @@ export const buildingStatusEnum = pgEnum("building_status", ["pending", "approve
 
 export const buildings = pgTable("buildings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
+  name: text("name"),
   address: text("address").notNull(),
   city: text("city").notNull().default("New York"),
   zip: text("zip").notNull(),

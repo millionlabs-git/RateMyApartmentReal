@@ -291,7 +291,7 @@ export class MemStorage implements IStorage {
 
     const matchingBuildings = searchLower
       ? approvedBuildings.filter(b =>
-          b.name.toLowerCase().includes(searchLower) ||
+          (b.name || "").toLowerCase().includes(searchLower) ||
           b.address.toLowerCase().includes(searchLower)
         )
       : approvedBuildings;
@@ -334,7 +334,7 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const newBuilding: Building = {
       id,
-      name: building.name,
+      name: building.name ?? null,
       address: building.address,
       city: building.city ?? "New York",
       zip: building.zip,
@@ -628,7 +628,7 @@ export class MemStorage implements IStorage {
     // Filter by search
     if (searchLower) {
       allBuildings = allBuildings.filter(b =>
-        b.name.toLowerCase().includes(searchLower) ||
+        (b.name || "").toLowerCase().includes(searchLower) ||
         b.address.toLowerCase().includes(searchLower)
       );
     }

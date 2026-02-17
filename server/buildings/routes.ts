@@ -38,7 +38,7 @@ function isValidNYCZip(zip: string): boolean {
 }
 
 const createBuildingSchema = z.object({
-  name: z.string().min(1, "Building name is required").max(255),
+  name: z.string().max(255).optional().default(""),
   address: z.string().min(1, "Address is required").max(255),
   zip: z.string().length(5, "ZIP code must be 5 digits").refine(isValidNYCZip, {
     message: "Please enter a valid NYC ZIP code",
@@ -307,7 +307,7 @@ router.post("/validate-address", async (req: Request, res: Response) => {
 
         duplicates = potentialDuplicates.map((d) => ({
           id: d.building.id,
-          name: d.building.name,
+          name: d.building.name || "",
           address: d.building.address,
           reason: d.reason,
         }));
@@ -317,7 +317,7 @@ router.post("/validate-address", async (req: Request, res: Response) => {
       const potentialDuplicates = await findPotentialDuplicates(null, null, address, "");
       duplicates = potentialDuplicates.map((d) => ({
         id: d.building.id,
-        name: d.building.name,
+        name: d.building.name || "",
         address: d.building.address,
         reason: d.reason,
       }));
@@ -358,10 +358,9 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     let matchedBuildingId: string | null = null;
 
     // Check for duplicates FIRST, before geocoding
-    const exactMatch = await findExactMatch(
-      validatedData.address,
-      validatedData.name
-    );
+    const exactMatch = validatedData.name
+      ? await findExactMatch(validatedData.address, validatedData.name)
+      : null;
 
     if (exactMatch) {
       if (!forceSubmit) {
@@ -423,7 +422,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 
     // Create the building
     const building = await storage.createBuilding({
-      name: validatedData.name,
+      name: validatedData.name || null,
       address: validatedData.address,
       city: "New York",
       zip: validatedData.zip,
