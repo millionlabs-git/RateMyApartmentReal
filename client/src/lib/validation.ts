@@ -30,6 +30,19 @@ export function isValidNYCZip(zip: string): boolean {
   return false;
 }
 
+export function getBoroughFromZip(zip: string): string | null {
+  const zipNum = parseInt(zip, 10);
+  if (isNaN(zipNum)) return null;
+
+  if (zipNum >= 10001 && zipNum <= 10282) return "Manhattan";
+  if (zipNum >= 10301 && zipNum <= 10314) return "Staten Island";
+  if (zipNum >= 10451 && zipNum <= 10475) return "Bronx";
+  if (zipNum >= 11201 && zipNum <= 11256) return "Brooklyn";
+  if (zipNum >= 11004 && zipNum <= 11697) return "Queens";
+
+  return null;
+}
+
 export const NYC_BOROUGHS = [
   "Manhattan",
   "Brooklyn",

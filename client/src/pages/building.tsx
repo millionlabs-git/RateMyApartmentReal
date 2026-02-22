@@ -1,6 +1,7 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MapPin, Building2, User, Map } from "lucide-react";
+import { getBoroughFromZip } from "@/lib/validation";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { RatingSummary } from "@/components/buildings/rating-summary";
@@ -129,7 +130,7 @@ export default function BuildingPage() {
             <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
             <div className="min-w-0">
               <p className="text-lg break-words">{building.address}</p>
-              <p>{building.city}, NY {building.zip}</p>
+              <p>{getBoroughFromZip(building.zip) || building.city}, NY {building.zip}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">

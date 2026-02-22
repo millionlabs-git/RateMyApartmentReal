@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X, MapPin, Building2, Pencil, Search, Trash2 } from "lucide-react";
+import { getBoroughFromZip } from "@/lib/validation";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -255,7 +256,7 @@ export default function AdminBuildings() {
             <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
               <MapPin className="h-3.5 w-3.5" />
               <span>
-                {building.address}, {building.city} {building.zip}
+                {building.address}, {getBoroughFromZip(building.zip) || building.city} {building.zip}
               </span>
             </div>
           </div>

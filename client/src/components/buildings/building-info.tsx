@@ -1,4 +1,5 @@
 import { MapPin, Building2, User, Map } from "lucide-react";
+import { getBoroughFromZip } from "@/lib/validation";
 
 interface BuildingInfoProps {
   name: string;
@@ -29,7 +30,7 @@ export function BuildingInfo({
           <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
           <div>
             <p className="text-lg">{address}</p>
-            <p>{city}, NY {zip}</p>
+            <p>{getBoroughFromZip(zip) || city}, NY {zip}</p>
           </div>
         </div>
       </div>
