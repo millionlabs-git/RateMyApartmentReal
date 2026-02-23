@@ -11,6 +11,7 @@ import waitlistRoutes from "./waitlist/routes";
 import { storage } from "./storage";
 import MemoryStore from "memorystore";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { setupVentureApiRoutes } from "./ventureApi";
 
 const MemoryStoreSession = MemoryStore(session);
 
@@ -49,6 +50,9 @@ export async function registerRoutes(
   
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);
+
+  // VentureAPI routes - external metrics API
+  setupVentureApiRoutes(app);
 
   return httpServer;
 }

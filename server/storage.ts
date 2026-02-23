@@ -28,6 +28,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserPassword(userId: string, passwordHash: string): Promise<void>;
   updateUserEmail(userId: string, email: string): Promise<void>;
+  updateLastLogin(userId: string): Promise<void>;
   createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<PasswordResetToken>;
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markTokenUsed(tokenId: string): Promise<void>;
@@ -150,6 +151,7 @@ export class MemStorage implements IStorage {
       status: "active",
       emailNotifications: true,
       emailVerified: false,
+      lastLoginAt: null,
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -160,6 +162,14 @@ export class MemStorage implements IStorage {
     const user = this.users.get(userId);
     if (user) {
       user.passwordHash = passwordHash;
+      this.users.set(userId, user);
+    }
+  }
+
+  async updateLastLogin(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.lastLoginAt = new Date();
       this.users.set(userId, user);
     }
   }
@@ -1004,6 +1014,7 @@ if (!process.env.DATABASE_URL && storage instanceof MemStorage) {
       status: "active",
       emailNotifications: true,
       emailVerified: true,
+      lastLoginAt: null,
       createdAt: new Date(),
     };
     storage.seedUser(adminUser);

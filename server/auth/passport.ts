@@ -23,6 +23,11 @@ passport.use(
           return done(null, false, { message: "Account is suspended" });
         }
 
+        // Track last login time
+        storage.updateLastLogin(user.id).catch((err) => {
+          console.error("Failed to update last login:", err);
+        });
+
         return done(null, user);
       } catch (error) {
         return done(error);

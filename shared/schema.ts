@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   status: userStatusEnum("status").notNull().default("active"),
   emailNotifications: boolean("email_notifications").notNull().default(true),
   emailVerified: boolean("email_verified").notNull().default(false),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
