@@ -11,6 +11,9 @@ export function setupVentureApiRoutes(app: Express) {
       const apiKey = req.headers['authorization']?.replace('Bearer ', '') || req.headers['x-api-key'];
       const ventureApiSecret = process.env.VentureAPI;
 
+      // Temporary debug - remove after confirming
+      console.log('VentureAPI env check:', ventureApiSecret ? 'SET (length: ' + ventureApiSecret.length + ')' : 'NOT SET');
+
       if (!ventureApiSecret) {
         console.error('VentureAPI: VentureAPI secret not configured in environment');
         return res.status(500).json({
