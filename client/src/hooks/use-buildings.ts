@@ -24,14 +24,15 @@ interface BuildingsResponse {
   };
 }
 
-export function useBuildings(search: string, page: number = 1, limit: number = 20) {
+export function useBuildings(search: string, page: number = 1, limit: number = 20, sort: string = "best") {
   return useQuery<BuildingsResponse>({
-    queryKey: ["/api/buildings", { search, page, limit }],
+    queryKey: ["/api/buildings", { search, page, limit, sort }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
       params.set("page", page.toString());
       params.set("limit", limit.toString());
+      params.set("sort", sort);
 
       const res = await fetch(`/api/buildings?${params}`);
       if (!res.ok) {

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, X, Star, Building2, Image } from "lucide-react";
+import { Check, X, Star, Building2, Image, Search } from "lucide-react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -29,6 +30,7 @@ interface Review {
   reviewText: string;
   floorNumber: number;
   isAnonymous: boolean;
+  status: string;
   createdAt: string;
   photos: ReviewPhoto[];
 }
@@ -45,15 +47,23 @@ interface ReviewsResponse {
 
 export default function AdminReviews() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [enlargedPhoto, setEnlargedPhoto] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data, isLoading } = useQuery<ReviewsResponse>({
-    queryKey: ["admin", "reviews", "pending", page],
+    queryKey: ["admin", "reviews", statusFilter, search, page],
     queryFn: async () => {
-      const res = await fetch(`/api/admin/reviews/pending?page=${page}&limit=10`);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+        status: statusFilter,
+        search,
+      });
+      const res = await fetch(`/api/admin/reviews?${params}`);
       if (!res.ok) throw new Error("Failed to load reviews");
       return res.json();
     },
@@ -150,6 +160,31 @@ export default function AdminReviews() {
     );
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Approved</Badge>;
+      case "denied":
+        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Denied</Badge>;
+      case "pending":
+        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Pending</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleStatusFilterChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    setPage(1);
+    setSelectedIds([]);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+    setSelectedIds([]);
+  };
+
   return (
     <AdminLayout>
       <div className="mb-8">
@@ -157,8 +192,34 @@ export default function AdminReviews() {
           Review Moderation
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Approve or deny pending reviews
+          Manage and moderate reviews
         </p>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by review text or building name..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex gap-2">
+          {["all", "approved", "pending", "denied"].map((s) => (
+            <Button
+              key={s}
+              size="sm"
+              variant={statusFilter === s ? "default" : "outline"}
+              onClick={() => handleStatusFilterChange(s)}
+              className={statusFilter === s ? "bg-[#ebba48] hover:bg-[#C49A3C] text-white" : ""}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {selectedIds.length > 0 && (
@@ -185,7 +246,7 @@ export default function AdminReviews() {
               disabled={bulkActionMutation.isPending}
             >
               <X className="h-4 w-4 mr-1" />
-              Deny All
+              Remove All
             </Button>
           </div>
         </div>
@@ -202,10 +263,12 @@ export default function AdminReviews() {
           <CardContent className="py-12 text-center">
             <Check className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-[#1C1917] dark:text-white">
-              All caught up!
+              No reviews found
             </h3>
             <p className="text-gray-500 mt-1">
-              There are no pending reviews to moderate.
+              {statusFilter === "all"
+                ? "There are no reviews yet."
+                : `There are no ${statusFilter} reviews.`}
             </p>
           </CardContent>
         </Card>
@@ -235,6 +298,7 @@ export default function AdminReviews() {
                           <CardTitle className="text-base font-medium">
                             {review.buildingName}
                           </CardTitle>
+                          {getStatusBadge(review.status)}
                         </div>
                         {renderStars(review.overallRating)}
                       </div>
@@ -274,34 +338,38 @@ export default function AdminReviews() {
                     </div>
                   )}
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                      onClick={() =>
-                        updateStatusMutation.mutate({
-                          reviewId: review.id,
-                          status: "approved",
-                        })
-                      }
-                      disabled={updateStatusMutation.isPending}
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() =>
-                        updateStatusMutation.mutate({
-                          reviewId: review.id,
-                          status: "denied",
-                        })
-                      }
-                      disabled={updateStatusMutation.isPending}
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Deny
-                    </Button>
+                    {review.status !== "approved" && (
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() =>
+                          updateStatusMutation.mutate({
+                            reviewId: review.id,
+                            status: "approved",
+                          })
+                        }
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                    )}
+                    {review.status !== "denied" && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          updateStatusMutation.mutate({
+                            reviewId: review.id,
+                            status: "denied",
+                          })
+                        }
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        {review.status === "approved" ? "Remove" : "Deny"}
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

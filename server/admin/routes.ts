@@ -118,6 +118,26 @@ router.post("/users/:id/reset-password", async (req: Request, res: Response) => 
   }
 });
 
+// Get all reviews with filtering (for moderation of auto-approved content)
+router.get("/reviews", async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const search = (req.query.search as string) || "";
+    const status = (req.query.status as string) || "all";
+
+    const { reviews, total } = await storage.getAllReviewsAdmin(search, status, page, limit);
+
+    return res.json({
+      data: reviews,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    console.error("Get all reviews error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Get pending reviews
 router.get("/reviews/pending", async (req: Request, res: Response) => {
   try {
@@ -148,6 +168,7 @@ router.patch("/reviews/:id/status", async (req: Request, res: Response) => {
 
     // Get review details before updating for email notification
     const review = await storage.getReviewWithDetails(id);
+    const wasApproved = review?.status === "approved";
 
     await storage.updateReviewStatus(id, status);
 
@@ -163,10 +184,13 @@ router.patch("/reviews/:id/status", async (req: Request, res: Response) => {
           buildingId: building.id,
         }).catch(err => console.error("Failed to send review approved email:", err));
       } else if (status === "denied") {
+        const removalReason = wasApproved
+          ? "Your review was removed because it violated our community guidelines."
+          : reason;
         sendReviewRejectedEmail({
           email: review.userEmail,
           buildingName: review.buildingName,
-          reason: reason,
+          reason: removalReason,
         }).catch(err => console.error("Failed to send review rejected email:", err));
       }
     }
@@ -306,6 +330,7 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
 
     // Get building before updating to find submitter
     const building = await storage.getBuilding(id);
+    const wasApproved = building?.status === "approved";
 
     await storage.updateBuildingStatus(id, status);
 
@@ -320,17 +345,20 @@ router.patch("/buildings/:id/status", async (req: Request, res: Response) => {
     if (building?.submittedBy) {
       const submitter = await storage.getUser(building.submittedBy);
       if (submitter?.emailNotifications) {
-        if (status === "approved") {
+        if (status === "approved" && !wasApproved) {
           sendBuildingApprovedEmail({
             email: submitter.email,
             buildingName: building.name,
             buildingAddress: building.address,
             buildingId: building.id,
           }).catch((err) => console.error("Failed to send building approved email:", err));
-        } else {
+        } else if (status === "denied") {
           sendBuildingRejectedEmail({
             email: submitter.email,
             buildingName: building.name,
+            reason: wasApproved
+              ? "Your residence listing was removed because it violated our submission guidelines."
+              : undefined,
           }).catch((err) => console.error("Failed to send building rejected email:", err));
         }
       }

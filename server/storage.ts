@@ -3,6 +3,16 @@ import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
 import { DatabaseStorage } from "./db-storage";
 
+function generateAnonymousId(userId: string): number {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    const char = userId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash % 9000) + 1000;
+}
+
 // Re-export types from storage-types
 export type {
   CategoryRatings,
@@ -41,7 +51,7 @@ export interface IStorage {
   // Building methods
   getBuilding(id: string): Promise<Building | undefined>;
   getBuildingWithStats(id: string): Promise<BuildingWithStats | undefined>;
-  searchBuildings(search: string, page: number, limit: number): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }>;
+  searchBuildings(search: string, page: number, limit: number, sort?: string): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }>;
   getAllApprovedBuildings(): Promise<Building[]>;
   createBuilding(building: InsertBuilding): Promise<Building>;
   updateBuildingGeocode(id: string, lat: number, lng: number): Promise<void>;
@@ -66,6 +76,7 @@ export interface IStorage {
   getAdminStats(): Promise<AdminStats>;
   getAllUsers(search: string, page: number, limit: number): Promise<{ users: User[]; total: number }>;
   updateUserStatus(userId: string, status: "active" | "suspended"): Promise<void>;
+  getAllReviewsAdmin(search: string, status: string, page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }>;
   getPendingReviews(page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }>;
   getReviewWithDetails(reviewId: string): Promise<ReviewWithDetails | undefined>;
   updateReviewStatus(reviewId: string, status: "approved" | "denied"): Promise<void>;
@@ -283,7 +294,7 @@ export class MemStorage implements IStorage {
     return { ...building, reviewCount, averageRating, categoryRatings, floorInsights };
   }
 
-  async searchBuildings(search: string, page: number, limit: number): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }> {
+  async searchBuildings(search: string, page: number, limit: number, sort: string = "best"): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }> {
     const searchLower = search.toLowerCase();
 
     const approvedBuildings = Array.from(this.buildings.values())
@@ -297,12 +308,8 @@ export class MemStorage implements IStorage {
       : approvedBuildings;
 
     const total = matchingBuildings.length;
-    const offset = (page - 1) * limit;
-    const paginatedBuildings = matchingBuildings
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(offset, offset + limit);
 
-    const buildingsWithStats = paginatedBuildings.map(building => {
+    const buildingsWithStats = matchingBuildings.map(building => {
       const buildingReviews = Array.from(this.reviews.values())
         .filter(r => r.buildingId === building.id && r.status === "approved");
 
@@ -314,7 +321,27 @@ export class MemStorage implements IStorage {
       return { ...building, reviewCount, averageRating };
     });
 
-    return { buildings: buildingsWithStats, total };
+    // Apply sorting
+    buildingsWithStats.sort((a, b) => {
+      switch (sort) {
+        case "highest":
+          return (b.averageRating ?? 0) - (a.averageRating ?? 0) || b.reviewCount - a.reviewCount;
+        case "most_reviews":
+          return b.reviewCount - a.reviewCount || (b.averageRating ?? 0) - (a.averageRating ?? 0);
+        case "newest":
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        case "oldest":
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        case "best":
+        default:
+          return b.reviewCount - a.reviewCount || (b.averageRating ?? 0) - (a.averageRating ?? 0);
+      }
+    });
+
+    const offset = (page - 1) * limit;
+    const paginatedBuildings = buildingsWithStats.slice(offset, offset + limit);
+
+    return { buildings: paginatedBuildings, total };
   }
 
   async getAllApprovedBuildings(): Promise<Building[]> {
@@ -417,7 +444,9 @@ export class MemStorage implements IStorage {
 
       return {
         ...review,
-        userDisplayName: review.isAnonymous ? null : (user?.displayName ?? null),
+        userDisplayName: review.isAnonymous
+          ? `Anonymous Renter ${generateAnonymousId(review.userId)}`
+          : (user?.displayName ?? null),
         photos,
         helpfulCount,
         userHasVotedHelpful,
@@ -547,6 +576,43 @@ export class MemStorage implements IStorage {
       user.status = status;
       this.users.set(userId, user);
     }
+  }
+
+  async getAllReviewsAdmin(search: string, status: string, page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }> {
+    const searchLower = search.toLowerCase();
+    let filteredReviews = Array.from(this.reviews.values());
+
+    if (status !== "all") {
+      filteredReviews = filteredReviews.filter(r => r.status === status);
+    }
+
+    if (search) {
+      filteredReviews = filteredReviews.filter(r => {
+        const building = this.buildings.get(r.buildingId);
+        return r.reviewText.toLowerCase().includes(searchLower) ||
+          (building?.name ?? "").toLowerCase().includes(searchLower);
+      });
+    }
+
+    filteredReviews.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const total = filteredReviews.length;
+    const offset = (page - 1) * limit;
+    const paginatedReviews = filteredReviews.slice(offset, offset + limit);
+
+    const reviewsWithDetails: ReviewWithDetails[] = paginatedReviews.map(review => {
+      const building = this.buildings.get(review.buildingId);
+      const user = this.users.get(review.userId);
+      const photos = Array.from(this.reviewPhotos.values()).filter(p => p.reviewId === review.id);
+      return {
+        ...review,
+        buildingName: building?.name ?? "Unknown Building",
+        userEmail: user?.email ?? "Unknown User",
+        photos,
+      };
+    });
+
+    return { reviews: reviewsWithDetails, total };
   }
 
   async getPendingReviews(page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }> {

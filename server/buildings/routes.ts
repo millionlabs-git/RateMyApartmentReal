@@ -103,12 +103,18 @@ router.get("/", async (req: Request, res: Response) => {
     const search = (req.query.search as string) || "";
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
+    const sort = (req.query.sort as string) || "best";
 
     if (page < 1 || limit < 1 || limit > 50) {
       return res.status(400).json({ message: "Invalid pagination parameters" });
     }
 
-    const { buildings, total } = await storage.searchBuildings(search, page, limit);
+    // Validate sort parameter
+    if (!["best", "highest", "most_reviews", "newest", "oldest"].includes(sort)) {
+      return res.status(400).json({ message: "Invalid sort parameter" });
+    }
+
+    const { buildings, total } = await storage.searchBuildings(search, page, limit, sort);
 
     return res.json({
       data: buildings,
@@ -239,11 +245,6 @@ router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => 
       return res.status(403).json({ message: "Your account has been suspended" });
     }
 
-    // Check if email is verified
-    if (!user.emailVerified) {
-      return res.status(403).json({ message: "Please verify your email before submitting a review", code: "EMAIL_NOT_VERIFIED" });
-    }
-
     // Check if building exists
     const building = await storage.getBuilding(id);
     if (!building || building.status !== "approved") {
@@ -264,7 +265,7 @@ router.post("/:id/reviews", requireAuth, async (req: Request, res: Response) => 
       safetyRating: validatedData.safetyRating || null,
       pestRating: validatedData.pestRating || null,
       isAnonymous: validatedData.isAnonymous ?? true,
-      status: "pending",
+      status: "approved",
     });
 
     // Save photos if provided
@@ -344,11 +345,6 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     // Check if user is suspended
     if (user.status === "suspended") {
       return res.status(403).json({ message: "Your account has been suspended" });
-    }
-
-    // Check if email is verified
-    if (!user.emailVerified) {
-      return res.status(403).json({ message: "Please verify your email before adding a building", code: "EMAIL_NOT_VERIFIED" });
     }
 
     const validatedData = createBuildingSchema.parse(req.body);
@@ -432,7 +428,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       buildingType: validatedData.buildingType || null,
       geocodeLat: geocodeResult?.lat ?? null,
       geocodeLng: geocodeResult?.lng ?? null,
-      status: "pending",
+      status: "approved",
       submittedBy: user.id,
     });
 
