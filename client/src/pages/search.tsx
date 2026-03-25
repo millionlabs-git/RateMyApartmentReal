@@ -4,6 +4,13 @@ import { SmartSearch } from "@/components/buildings/smart-search";
 import { BuildingList } from "@/components/buildings/building-list";
 import { Pagination } from "@/components/buildings/pagination";
 import { Layout } from "@/components/layout/layout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SearchPage() {
   const searchString = useSearch();
@@ -11,13 +18,23 @@ export default function SearchPage() {
   const params = new URLSearchParams(searchString);
   const query = params.get("q") || "";
   const page = parseInt(params.get("page") || "1");
+  const sort = params.get("sort") || "best";
 
-  const { data, isLoading } = useBuildings(query, page);
+  const { data, isLoading } = useBuildings(query, page, 20, sort);
+
+  const handleSortChange = (newSort: string) => {
+    const newParams = new URLSearchParams();
+    if (query) newParams.set("q", query);
+    newParams.set("page", "1");
+    if (newSort !== "best") newParams.set("sort", newSort);
+    setLocation(`/search?${newParams}`);
+  };
 
   const handlePageChange = (newPage: number) => {
     const newParams = new URLSearchParams();
     if (query) newParams.set("q", query);
     newParams.set("page", newPage.toString());
+    if (sort !== "best") newParams.set("sort", sort);
     setLocation(`/search?${newParams}`);
   };
 
@@ -46,9 +63,23 @@ export default function SearchPage() {
         {/* Results section */}
         <div className="flex-1 max-w-6xl w-full mx-auto">
           {data?.pagination && data.pagination.total > 0 && (
-            <p className="text-sm text-white/50 mb-6">
-              Found <span className="font-medium text-white">{data.pagination.total}</span> {data.pagination.total === 1 ? "building" : "buildings"}
-            </p>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-sm text-white/50">
+                Found <span className="font-medium text-white">{data.pagination.total}</span> {data.pagination.total === 1 ? "building" : "buildings"}
+              </p>
+              <Select value={sort} onValueChange={handleSortChange}>
+                <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="best">Best Match</SelectItem>
+                  <SelectItem value="highest">Highest Rated</SelectItem>
+                  <SelectItem value="most_reviews">Most Reviews</SelectItem>
+                  <SelectItem value="newest">Newest Added</SelectItem>
+                  <SelectItem value="oldest">Oldest Added</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
           <BuildingList

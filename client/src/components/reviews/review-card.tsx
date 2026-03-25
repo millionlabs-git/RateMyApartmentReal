@@ -71,7 +71,7 @@ export function ReviewCard({
   // - Non-anonymous + display name -> Show Display Name
   // - Non-anonymous + no display name -> "NYC Renter"
   const displayName = isAnonymous
-    ? "Anonymous Renter"
+    ? (userDisplayName || "Anonymous Renter")
     : (userDisplayName || "NYC Renter");
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();

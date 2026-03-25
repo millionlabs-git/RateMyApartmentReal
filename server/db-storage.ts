@@ -37,6 +37,16 @@ import type {
   DuplicatePairWithBuildings,
 } from "./storage-types";
 
+function generateAnonymousId(userId: string): number {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    const char = userId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash % 9000) + 1000; // 4-digit number: 1000-9999
+}
+
 export class DatabaseStorage implements IStorage {
   private get db() {
     if (!maybeDb) {
@@ -161,7 +171,7 @@ export class DatabaseStorage implements IStorage {
     return { ...building, reviewCount, averageRating, categoryRatings, floorInsights };
   }
 
-  async searchBuildings(search: string, page: number, limit: number): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }> {
+  async searchBuildings(search: string, page: number, limit: number, sort: string = "best"): Promise<{ buildings: (Building & { reviewCount: number; averageRating: number | null })[]; total: number }> {
     const searchLower = `%${search.toLowerCase()}%`;
 
     const whereCondition = search
@@ -176,21 +186,57 @@ export class DatabaseStorage implements IStorage {
 
     const [{ total }] = await this.db.select({ total: count() }).from(buildings).where(whereCondition);
 
+    // Subquery for review stats
+    const reviewStats = this.db
+      .select({
+        buildingId: reviews.buildingId,
+        reviewCount: count(reviews.id).as('review_count'),
+        averageRating: sql<number>`COALESCE(AVG(${reviews.overallRating}), 0)`.as('average_rating'),
+      })
+      .from(reviews)
+      .where(eq(reviews.status, "approved"))
+      .groupBy(reviews.buildingId)
+      .as('review_stats');
+
+    // Determine sort order
+    let orderByClause;
+    switch (sort) {
+      case "highest":
+        orderByClause = [desc(sql`COALESCE(review_stats.average_rating, 0)`), desc(sql`COALESCE(review_stats.review_count, 0)`)];
+        break;
+      case "most_reviews":
+        orderByClause = [desc(sql`COALESCE(review_stats.review_count, 0)`), desc(sql`COALESCE(review_stats.average_rating, 0)`)];
+        break;
+      case "newest":
+        orderByClause = [desc(buildings.createdAt)];
+        break;
+      case "oldest":
+        orderByClause = [asc(buildings.createdAt)];
+        break;
+      case "best":
+      default:
+        orderByClause = [desc(sql`COALESCE(review_stats.review_count, 0)`), desc(sql`COALESCE(review_stats.average_rating, 0)`)];
+        break;
+    }
+
     const offset = (page - 1) * limit;
-    const matchingBuildings = await this.db.select()
+    const results = await this.db
+      .select({
+        building: buildings,
+        reviewCount: sql<number>`COALESCE(review_stats.review_count, 0)`,
+        averageRating: sql<number | null>`CASE WHEN review_stats.review_count > 0 THEN review_stats.average_rating ELSE NULL END`,
+      })
       .from(buildings)
+      .leftJoin(reviewStats, eq(buildings.id, reviewStats.buildingId))
       .where(whereCondition)
-      .orderBy(desc(buildings.createdAt))
+      .orderBy(...orderByClause)
       .limit(limit)
       .offset(offset);
 
-    const buildingsWithStats = await Promise.all(matchingBuildings.map(async (building: typeof matchingBuildings[0]) => {
-      const buildingReviews = await this.db.select().from(reviews).where(and(eq(reviews.buildingId, building.id), eq(reviews.status, "approved")));
-      const reviewCount = buildingReviews.length;
-      const averageRating = reviewCount > 0
-        ? buildingReviews.reduce((sum: number, r: typeof buildingReviews[0]) => sum + r.overallRating, 0) / reviewCount
-        : null;
-      return { ...building, reviewCount, averageRating };
+    const buildingsWithStats = results.map((row) => ({
+      ...row.building,
+      reviewCount: Number(row.reviewCount),
+      averageRating: row.averageRating !== null ? Number(row.averageRating) : null,
     }));
 
     return { buildings: buildingsWithStats, total };
@@ -269,7 +315,9 @@ export class DatabaseStorage implements IStorage {
 
       return {
         ...review,
-        userDisplayName: review.isAnonymous ? null : (user?.displayName ?? null),
+        userDisplayName: review.isAnonymous
+          ? `Anonymous Renter ${generateAnonymousId(review.userId)}`
+          : (user?.displayName ?? null),
         photos,
         helpfulCount,
         userHasVotedHelpful,
@@ -347,6 +395,54 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserStatus(userId: string, status: "active" | "suspended"): Promise<void> {
     await this.db.update(users).set({ status }).where(eq(users.id, userId));
+  }
+
+  async getAllReviewsAdmin(search: string, status: string, page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }> {
+    const searchLower = `%${search.toLowerCase()}%`;
+
+    let whereCondition;
+    if (status === "all") {
+      whereCondition = search
+        ? or(
+            sql`LOWER(${reviews.reviewText}) LIKE ${searchLower}`,
+            sql`EXISTS (SELECT 1 FROM ${buildings} WHERE ${buildings.id} = ${reviews.buildingId} AND LOWER(${buildings.name}) LIKE ${searchLower})`
+          )
+        : undefined;
+    } else {
+      whereCondition = search
+        ? and(
+            eq(reviews.status, status as "pending" | "approved" | "denied"),
+            or(
+              sql`LOWER(${reviews.reviewText}) LIKE ${searchLower}`,
+              sql`EXISTS (SELECT 1 FROM ${buildings} WHERE ${buildings.id} = ${reviews.buildingId} AND LOWER(${buildings.name}) LIKE ${searchLower})`
+            )
+          )
+        : eq(reviews.status, status as "pending" | "approved" | "denied");
+    }
+
+    const [{ total }] = await this.db.select({ total: count() }).from(reviews).where(whereCondition);
+
+    const offset = (page - 1) * limit;
+    const allReviews = await this.db.select()
+      .from(reviews)
+      .where(whereCondition)
+      .orderBy(desc(reviews.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const reviewsWithDetails: ReviewWithDetails[] = await Promise.all(allReviews.map(async (review: typeof allReviews[0]) => {
+      const [building] = await this.db.select().from(buildings).where(eq(buildings.id, review.buildingId));
+      const [user] = await this.db.select().from(users).where(eq(users.id, review.userId));
+      const photos = await this.db.select().from(reviewPhotos).where(eq(reviewPhotos.reviewId, review.id));
+      return {
+        ...review,
+        buildingName: building?.name ?? "Unknown Building",
+        userEmail: user?.email ?? "Unknown User",
+        photos,
+      };
+    }));
+
+    return { reviews: reviewsWithDetails, total };
   }
 
   async getPendingReviews(page: number, limit: number): Promise<{ reviews: ReviewWithDetails[]; total: number }> {
